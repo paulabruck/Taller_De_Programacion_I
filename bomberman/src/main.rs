@@ -18,35 +18,30 @@ fn main() -> Result<(), Box<dyn Error>> {
     let output_file = &arguments[2];
     let coordinate_x: usize = arguments[3].parse()?;
     let coordinate_y: usize = arguments[4].parse()?;
-    
     println!("{}", input_file);
     println!("{}", output_file);
     println!("{}", coordinate_x);
     println!("{}", coordinate_y);
     println!();
+
     //leer el archivo input
     let file = File::open(input_file)?;
     let reader = io::BufReader::new(file);
     let mut maze: Vec<Vec<char>> = Vec::new();
+    
     for line in reader.lines() {
         let row: Vec<char> = line?.chars().collect();
-        maze.push(row);
         
+        maze.push(row);
     }
+
     // Obtener las dimensiones del laberinto
     let num_rows = maze.len();
     let mut num_columns =  0 ;
     println!("{}", num_columns);
     println!("{}", num_rows);
 
-    for row in &maze {
-        for &cell in row {
-            print!("{}", cell);
-        }
-        println!(); // Salto de línea para separar las filas
-    }
-    
-     // Recorrer cada fila
+    // Recorrer cada fila
     for (row_index, row) in maze.iter().enumerate() {
         // Recorrer cada columna en la fila actual
         for (col_index, &cell) in row.iter().enumerate() {
@@ -58,13 +53,26 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     println!("{}", num_columns/num_rows);
-
-
-
-
-
+    
+    //mostrar maze cargado
+    for row in &maze {
+        for &cell in row {
+            print!("{}", cell);
+        }
+        println!(); // Salto de línea para separar las filas
+    }
     
     //validar el laberinto
+    //chequear si en la coordenada por consola hay bomba 
+    
+    let character_at_xy = maze[coordinate_x][coordinate_y];
+
+    // Imprimir el carácter en la posición (x, y)
+    println!("El carácter en la posición ({}, {}) es: {}", coordinate_x, coordinate_y, character_at_xy);
+    if character_at_xy != 'B'|| character_at_xy != 'S' {
+        return Err("error_piezas_invalidas()".into());
+    }
+    
 
     
 
