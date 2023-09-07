@@ -1,80 +1,54 @@
+mod file;
+//mod bomberman;
 use std::fs::File;
 use std::error::Error;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::fmt::Display;
+use std::fs::read_to_string;
+use file::read_file;
+use std::env;
 
-fn main() -> Result<(), Box<dyn Error>> {
-   
-    // Leer los argumentos de la línea de comandos
-    let arguments: Vec<String> = std::env::args().collect();
+fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
+    let arguments: Vec<String> = env::args().collect();
     if arguments.len() != 5 {
-        eprintln!("Uso: cargo run -- <ruta_archivo_input> <ruta_directorio_output> <coordenada_x> <coordenada_y>");
         return Err("Cantidad incorrecta de argumentos".into());
     }
 
-    // Obtener los argumentos
-    let input_file = &arguments[1];
-    let output_file = &arguments[2];
-    let coordinate_x: usize = arguments[3].parse()?;
-    let coordinate_y: usize = arguments[4].parse()?;
-    println!("{}", input_file);
-    println!("{}", output_file);
-    println!("{}", coordinate_x);
-    println!("{}", coordinate_y);
-    println!();
+    let input_file = arguments[1].clone();
+    let output_directory = arguments[2].clone();
+    let coordinate_x = arguments[3].parse()?;
+    let coordinate_y = arguments[4].parse()?;
 
-    //leer el archivo input
-    let file = File::open(input_file)?;
-    let reader = io::BufReader::new(file);
-    let mut maze: Vec<Vec<char>> = Vec::new();
+    Ok((input_file, output_directory, coordinate_x, coordinate_y))
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+   
+    let (input_file, output_directory, coordinate_x, coordinate_y) = parse_arguments()?;
     
-    for line in reader.lines() {
-        let row: Vec<char> = line?.chars().collect();
-        
-        maze.push(row);
-    }
-
-    // Obtener las dimensiones del laberinto
-    let num_rows = maze.len();
-    let mut num_columns =  0 ;
-    println!("{}", num_columns);
-    println!("{}", num_rows);
-
-    // Recorrer cada fila
-    for (row_index, row) in maze.iter().enumerate() {
-        // Recorrer cada columna en la fila actual
-        for (col_index, &cell) in row.iter().enumerate() {
-            // Aquí 'cell' contiene el carácter en la posición (fila_index, col_index)
-            if cell != ' '{
-                num_columns+=1
-            }
-            println!("En la posición ({}, {}), encontré el carácter: {}", row_index, col_index, cell);
+    println!("Ruta del archivo de entrada: {}", input_file);
+    println!("Ruta del directorio de salida: {}", output_directory);
+    println!("Coordenada X: {}", coordinate_x);
+    println!("Coordenada Y: {}", coordinate_y);
+    
+    // Llamar a la función read_file
+    let file_contents = match read_file(&input_file) {
+        Ok(contents) => contents,
+        Err(error) => {
+            eprintln!("Error al leer el archivo: {}", error);
+            return Err(error);
         }
-    }
-    println!("{}", num_columns/num_rows);
-    
-    //mostrar maze cargado
-    for row in &maze {
-        for &cell in row {
-            print!("{}", cell);
-        }
-        println!(); // Salto de línea para separar las filas
-    }
-    
-    //validar el laberinto
-    //chequear si en la coordenada por consola hay bomba 
-    
-    let character_at_xy = maze[coordinate_x][coordinate_y];
+    };
 
-    // Imprimir el carácter en la posición (x, y)
-    println!("El carácter en la posición ({}, {}) es: {}", coordinate_x, coordinate_y, character_at_xy);
-    if character_at_xy != 'B'|| character_at_xy != 'S' {
-        return Err("error_piezas_invalidas()".into());
-    }
-    
 
-    
+    //proceso cada caracter 
 
+     // Llamar a la función para crear objetos a partir del laberinto
+    /*let objects = match create_objects(&mut file_contents) {
+        Ok(result) => result,
+        Err(error) => return Err(error.into()), // Manejar el error aquí como se mencionó anteriormente
+    };
+    */
     Ok(())
 }
