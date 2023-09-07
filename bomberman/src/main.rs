@@ -23,17 +23,50 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{}", output_file);
     println!("{}", coordinate_x);
     println!("{}", coordinate_y);
-    
+    println!();
     //leer el archivo input
     let file = File::open(input_file)?;
     let reader = io::BufReader::new(file);
     let mut maze: Vec<Vec<char>> = Vec::new();
     for line in reader.lines() {
-        println!("{}", line);
         let row: Vec<char> = line?.chars().collect();
         maze.push(row);
+        
     }
+    // Obtener las dimensiones del laberinto
+    let num_rows = maze.len();
+    let mut num_columns =  0 ;
+    println!("{}", num_columns);
+    println!("{}", num_rows);
 
+    for row in &maze {
+        for &cell in row {
+            print!("{}", cell);
+        }
+        println!(); // Salto de línea para separar las filas
+    }
+    
+     // Recorrer cada fila
+    for (row_index, row) in maze.iter().enumerate() {
+        // Recorrer cada columna en la fila actual
+        for (col_index, &cell) in row.iter().enumerate() {
+            // Aquí 'cell' contiene el carácter en la posición (fila_index, col_index)
+            if cell != ' '{
+                num_columns+=1
+            }
+            println!("En la posición ({}, {}), encontré el carácter: {}", row_index, col_index, cell);
+        }
+    }
+    println!("{}", num_columns/num_rows);
+
+
+
+
+
+    
+    //validar el laberinto
+
+    
 
     Ok(())
 }
