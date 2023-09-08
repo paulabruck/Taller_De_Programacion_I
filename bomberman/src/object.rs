@@ -1,103 +1,48 @@
-/*
-pub trait Objeto {
-    fn position(&self) -> (usize, usize);
-    fn caracter(&self) -> char;
-    fn is_bomb(&self) -> bool;
-    fn is_enemy(&self) -> bool;
-    fn is_desvio(&self) -> bool;
-  
-}
-
-pub fn create_object(caracter: char, position: (usize, usize), otras_propiedades: OtrasPropiedades) -> Box<dyn Objeto> {
-    match caracter {
-        'E' => Box::new(Enemigo::new(position, otras_propiedades)),
-        'B' => Box::new(BombaNormal::new(position, otras_propiedades)),
-        'S' => Box::new(BombaTraspaso::new(position, otras_propiedades)),
-        'R' => Box::new(Roca::new(position, otras_propiedades)),
-        'W' => Box::new(Pared::new(position, otras_propiedades)),
-        'D' => Box::new(Desvio::new(position, otras_propiedades)),
-        _ => Box::new(ObjetoDefault::new(position, otras_propiedades)),
-    }
-}
-*/
-
-// Definición del trait Objeto
 trait Objeto {
-    fn caracter(&self) -> char;
-    fn posicion(&self) -> (usize, usize);
+    // Métodos comunes que deben ser implementados por los tipos que implementen el trait.
+
+    // Método para obtener la posición del objeto.
+    fn obtener_posicion(&self) -> (usize, usize);
+
+    // Método para obtener el carácter que representa al objeto.
+    fn obtener_caracter(&self) -> char;
+
+    // Método para verificar si es una bomba.
     fn es_bomba(&self) -> bool;
+
+    // Método para verificar si es un enemigo.
     fn es_enemigo(&self) -> bool;
+
+    // Método para verificar si es un desvío.
     fn es_desvio(&self) -> bool;
-    // Otras funciones específicas para cada tipo de objeto
 }
 
-// Implementación de Objeto para un objeto genérico
-struct ObjetoGenerico {
-    carac: char,
-    pos: (usize, usize),
-    es_b: bool,
-    es_e: bool,
-    es_d: bool,
+// Implementación para un tipo de objeto concreto, por ejemplo, Enemigo.
+struct Enemigo {
+    x: usize,
+    y: usize,
 }
 
-impl Objeto for ObjetoGenerico {
-    fn caracter(&self) -> char {
-        self.carac
+impl Objeto for Enemigo {
+    fn obtener_posicion(&self) -> (usize, usize) {
+        (self.x, self.y)
     }
 
-    fn posicion(&self) -> (usize, usize) {
-        self.pos
+    fn obtener_caracter(&self) -> char {
+        'E'
     }
 
     fn es_bomba(&self) -> bool {
-        self.es_b
+        false
     }
 
     fn es_enemigo(&self) -> bool {
-        self.es_e
+        true
     }
 
     fn es_desvio(&self) -> bool {
-        self.es_d
+        false
     }
-    // Implementa otras funciones específicas para este objeto si es necesario
 }
 
-// Implementación de crear_objeto
-fn crear_objeto(caracter: char, posicion: (usize, usize)) -> Box<dyn Objeto> {
-    let objeto: Box<dyn Objeto> = match caracter {
-        'B' => Box::new(ObjetoGenerico {
-            carac: caracter,
-            pos: posicion,
-            es_b: true,
-            es_e: false,
-            es_d: false,
-        }),
-        'E' => Box::new(ObjetoGenerico {
-            carac: caracter,
-            pos: posicion,
-            es_b: false,
-            es_e: true,
-            es_d: false,
-        }),
-        'D' => Box::new(ObjetoGenerico {
-            carac: caracter,
-            pos: posicion,
-            es_b: false,
-            es_e: false,
-            es_d: true,
-        }),
-        // Agrega más casos para otros tipos de objetos si es necesario
-        _ => Box::new(ObjetoGenerico {
-            carac: caracter,
-            pos: posicion,
-            es_b: false,
-            es_e: false,
-            es_d: false,
-        }),
-    };
-
-    objeto
-}
-
-
+// Implementa el trait Objeto para otros tipos de objetos de manera similar.

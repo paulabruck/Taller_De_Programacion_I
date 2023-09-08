@@ -1,5 +1,6 @@
 mod file;
-//mod bomberman;
+mod bomberman;
+mod object;
 use std::fs::File;
 use std::error::Error;
 use std::io::{self, BufRead};
@@ -33,7 +34,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Coordenada Y: {}", coordinate_y);
     
     // Llamar a la función read_file
-    let file_contents = match read_file(&input_file) {
+    let mut file_contents = match read_file(&input_file) {
         Ok(contents) => contents,
         Err(error) => {
             eprintln!("Error al leer el archivo: {}", error);
@@ -43,12 +44,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 
     //proceso cada caracter 
+    for character in file_contents.chars() {
+        // Aquí puedes procesar cada carácter individual del laberinto
+        // character es el carácter actual
+        if character == '\n' || character == '_' {
+            continue;
+        };
+        if character != '_'{
+            println!("{}", character)
+        }
+    }
+    
+   
+    
 
-     // Llamar a la función para crear objetos a partir del laberinto
-    /*let objects = match create_objects(&mut file_contents) {
-        Ok(result) => result,
-        Err(error) => return Err(error.into()), // Manejar el error aquí como se mencionó anteriormente
-    };
-    */
     Ok(())
 }

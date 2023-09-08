@@ -1,4 +1,5 @@
-mod object;
+//use crate::object::Objeto;
+use std::error::Error;
     /*
 
 fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
@@ -21,19 +22,22 @@ fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::e
     }
     Ok(objects)
 }
-*/
-fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
-    let mut objetos: Vec<Box<dyn Objeto>> = Vec::new();
-
+pub fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
+    //let mut objetos: Vec<Box<dyn Objeto>> = Vec::new();
+    
     // Procesar el laberinto y crear objetos aquí
     for (fila, linea) in maze.lines().enumerate() {
         for (columna, caracter) in linea.chars().enumerate() {
             let posicion = (fila, columna);
-            let objeto = crear_objeto(caracter, posicion);
-            objetos.push(objeto);
+            // let objeto = crear_objeto(caracter, posicion);
+            //objetos.push(objeto);
         }
     }
-
+    
     // Devolver el vector de objetos
-    Ok(objetos)
+    Ok()
 }
+pub fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
+}
+*/
+
