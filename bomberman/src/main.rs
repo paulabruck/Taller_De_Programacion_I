@@ -9,6 +9,9 @@ use std::fmt::Display;
 use std::fs::read_to_string;
 use file::read_file;
 use std::env;
+use crate::bomberman::create_objects;
+
+
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     let arguments: Vec<String> = env::args().collect();
@@ -42,21 +45,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-
-    //proceso cada caracter 
-    for character in file_contents.chars() {
-        // Aquí puedes procesar cada carácter individual del laberinto
-        // character es el carácter actual
-        if character == '\n' || character == '_' {
-            continue;
-        };
-        if character != '_'{
-            println!("{}", character)
-        }
-    }
-    
-   
-    
+    let objects = match create_objects(&mut file_contents, coordinate_x, coordinate_y) {
+        Ok(resultado) => resultado,
+        Err(error) => return Err(error),
+    };
 
     Ok(())
 }

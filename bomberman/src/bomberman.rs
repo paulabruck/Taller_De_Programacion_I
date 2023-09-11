@@ -1,43 +1,69 @@
-//use crate::object::Objeto;
 use std::error::Error;
-    /*
 
-fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
-    let maze_chars: Vec<char> = maze.chars().collect();
-    let mut objects: Vec<Box<dyn Objeto>> = Vec::new();
+#[derive(Debug)]
+enum TypeBomba {
+    Normal,
+    Traspaso,
+}
+struct Bomba {
+    position: (usize, usize),
+    typee: TypeBomba,
+}
 
-    let mut row = 0;
-    let mut column = 0;
+pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
+    let mut position: (usize, usize) = (0, 0);
+    let  index: usize = 0;
+    let mut bombas: Vec<Bomba> = Vec::new();
+    //let mut object: [Box<dyn Object>] = [Vacio::new(), Vacio::new()];
+     //proceso cada caracter 
+     for character in file_contents.chars() {
+        // Aquí puedes procesar cada carácter individual del laberinto
+        // character es el carácter actual
+        if character == '\n'{
+            position.1 = 0;
+            position.0 += 1;
+        }
+        if character == ' '{
+            position.1 += 1;
+        }
+        if character == '\n' || character == '_' {
 
-    for &caracter in &maze_chars {
-        if caracter == '\n' {
-            row += 1;
-            column = 0;
             continue;
+        };
+        if  character != ' ' {   
+            if character == 'B'{
+                let bomba_normal = Bomba {
+                    position: (position.0, position.1),
+                    typee: TypeBomba::Normal,
+                };
+                println!("Posición de la bomba normal: {:?}", bomba_normal.position);
+                bombas.push(bomba_normal);
+            }
+            if character == 'S'{
+                let bomba_traspaso = Bomba {
+                    position: (position.0, position.1),
+                    typee: TypeBomba::Traspaso,
+                };
+                bombas.push(bomba_traspaso);
+            }
+            
+            //println!("{}", character)
         }
-        let position = (row, column);
-        let object = create_object(caracter, position, OtrasPropiedades::default());
-        objects.push(object);
-        column += 1;
     }
-    Ok(objects)
-}
-pub fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
-    //let mut objetos: Vec<Box<dyn Objeto>> = Vec::new();
-    
-    // Procesar el laberinto y crear objetos aquí
-    for (fila, linea) in maze.lines().enumerate() {
-        for (columna, caracter) in linea.chars().enumerate() {
-            let posicion = (fila, columna);
-            // let objeto = crear_objeto(caracter, posicion);
-            //objetos.push(objeto);
+    // Supongamos que tienes un vector de bombas llamado 'bombas' que contiene todas las bombas.
+for bomba in &bombas {
+    if bomba.position == (coordinate_x, coordinate_y) {
+        match bomba.typee {
+            TypeBomba::Normal => {
+                println!("¡Encontraste una bomba normal en la coordenada ({}, {})!", coordinate_x, coordinate_y);
+            }
+            TypeBomba::Traspaso => {
+                println!("¡Encontraste una bomba de traspaso en la coordenada ({}, {})!", coordinate_x, coordinate_y);
+            }
         }
+        // Haz lo que necesites hacer cuando encuentres la bomba aquí.
     }
-    
-    // Devolver el vector de objetos
-    Ok()
 }
-pub fn create_objects(maze: &mut str) -> Result<Vec<Box<dyn Objeto>>, Box<dyn std::error::Error>> {
-}
-*/
 
+    Ok(())
+}
