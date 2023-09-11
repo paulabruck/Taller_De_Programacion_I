@@ -34,6 +34,7 @@ pub struct GameData {
     pub bombas: Vec<Bomba>,
     pub enemies: Vec<Enemigo>,
     pub detours: Vec<Detour>,
+    pub laberinto: Vec<Vec<char>>,
 }
 
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
@@ -49,7 +50,6 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
                     println!("¡Encontraste una bomba de traspaso en la coordenada ({}, {})!", coordinate_x, coordinate_y);
                 }
             }
-            // Haz lo que necesites hacer cuando encuentres la bomba aquí.
         }
     }
     if bomba_encontrada {
@@ -58,7 +58,7 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
         Err("No se encontró una bomba en las coordenadas especificadas.".into())
     }
 }
-pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<GameData, Box<dyn Error>>{
+pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize, maze:Vec<Vec<char>>) -> Result<GameData, Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
     let mut enemies: Vec<Enemigo> = Vec::new();
@@ -171,7 +171,36 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
         bombas: bombas.clone(),
         enemies: enemies.clone(),
         detours: detours.clone(),
+        laberinto: maze.clone(),
+
     };
     Ok(game_data)
 }
-//pub fn show_maze(file_contents: &mut str) -> Result<(), Box<dyn Error>>{
+pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
+    //busco en el vector de bombas la bomba en la coordenada x e y 
+    //guardo en una varibale el alcance 
+    //modifico en el laberinto la B por _ 
+    //modifico el vector de bombas 
+    // Busca la bomba en la coordenada x e y
+    let mut bomba_encontrada = None;
+    for bomba in &mut game_data.bombas {
+        if bomba.position == (coordinate_x, coordinate_y) {
+            bomba_encontrada = Some(bomba.clone());
+            break;
+        }
+    }
+    // Si se encontró una bomba en la coordenada, realiza las acciones necesarias
+    if let Some(bomba) = bomba_encontrada {
+        // Guarda el alcance en una variable
+        let alcance = bomba.reach;
+        // Modifica el laberinto reemplazando la 'B' por '_'
+        if let Some(row) = game_data.laberinto.get_mut(coordinate_x) {
+            if let Some(cell) = row.get_mut(coordinate_y) {
+                if *cell == 'B' {
+                    *cell = '_';
+                }
+            }
+        }
+    }
+Ok(())
+}
