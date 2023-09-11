@@ -15,6 +15,7 @@ struct Enemigo{
     position: (usize, usize),
     lives: usize,
 }
+
 #[derive(Debug)]
 enum TypeDetour {
     Left,
@@ -22,10 +23,12 @@ enum TypeDetour {
     Up,
     Down,
 }
+
 struct Detour{
     position: (usize, usize),
     direction: TypeDetour,
 }
+
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
     let mut bomba_encontrada = false;
     for bomba in &bombas {
@@ -51,6 +54,8 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
 pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
+    let mut enemies: Vec<Enemigo> = Vec::new();
+    let mut detours: Vec<Detour> = Vec::new();
     let mut chars = file_contents.chars();
 
     while let Some(character) = chars.next(){
@@ -94,11 +99,56 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                 }
             }
             if character == 'F'{
-
+                if let Some(next_char) = chars.next() {
+                    if let Some(digit) = next_char.to_digit(10) {
+                        let value_as_usize = digit as usize;
+                        let enemy = Enemigo {
+                            position: (position.0, position.1),
+                            lives: value_as_usize,
+                        };
+                        println!("Posición del enemigo: {:?}", enemy.position);
+                        enemies.push(enemy);
+                    }
+                }    
             }
             if character == 'D' {
-
-            }
+                if let Some(next_char) = chars.next() {
+                    if next_char == 'R'{
+                        let detour = Detour {
+                            position: (position.0, position.1),
+                            direction: TypeDetour::Right,
+                        };  
+                        println!("Posición del desvio: {:?}", detour.position);
+                        detours.push(detour);
+                    }
+                    if next_char == 'L'{
+                        let detour = Detour {
+                            position: (position.0, position.1),
+                            direction: TypeDetour::Left,
+                        };  
+                        println!("Posición del desvio: {:?}", detour.position);
+                        detours.push(detour);
+                    }
+                    if next_char == 'U'{
+                        let detour = Detour {
+                            position: (position.0, position.1),
+                            direction: TypeDetour::Up,
+                        };  
+                        println!("Posición del desvio: {:?}", detour.position);
+                        println!("Next character after 'D' is '{}'", next_char);
+                        detours.push(detour);
+                    }
+                    if next_char == 'D'{
+                        let detour = Detour {
+                            position: (position.0, position.1),
+                            direction: TypeDetour::Down,
+                        };  
+                        println!("Posición del desvio: {:?}", detour.position);
+                        detours.push(detour);
+                    }
+                    
+                }
+            }    
             //println!("{}", character)
         }
     }
