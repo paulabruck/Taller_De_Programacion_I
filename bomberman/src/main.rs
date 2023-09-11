@@ -49,6 +49,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
     };
+    let input = "B5C";
+
+    // Convierte la cadena en un iterador de caracteres
+    let mut chars = input.chars();
+
+    while let Some(c) = chars.next() {
+        if c == 'B' {
+            // Si el carácter es 'B', verifica el siguiente carácter
+            if let Some(next_char) = chars.next() {
+                // Convierte el siguiente carácter en usize
+                if let Some(digit) = next_char.to_digit(10) {
+                    let value_as_usize = digit as usize;
+                    println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
+                }
+            }
+        }
+    }
+
+
+
+
+
+
 
     Ok(())
 }

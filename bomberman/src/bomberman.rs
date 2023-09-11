@@ -8,15 +8,31 @@ enum TypeBomba {
 struct Bomba {
     position: (usize, usize),
     typee: TypeBomba,
+    reach: Option<char>,
 }
-
+fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
+    for bomba in &bombas {
+        if bomba.position == (coordinate_x, coordinate_y) {
+            match bomba.typee {
+                TypeBomba::Normal => {
+                    println!("¡Encontraste una bomba normal en la coordenada ({}, {})!", coordinate_x, coordinate_y);
+                }
+                TypeBomba::Traspaso => {
+                    println!("¡Encontraste una bomba de traspaso en la coordenada ({}, {})!", coordinate_x, coordinate_y);
+                }
+            }
+            // Haz lo que necesites hacer cuando encuentres la bomba aquí.
+        }
+    }
+    Ok(())
+}
 pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
-    let  index: usize = 0;
+    //let  index: usize = 0;
     let mut bombas: Vec<Bomba> = Vec::new();
     //let mut object: [Box<dyn Object>] = [Vacio::new(), Vacio::new()];
      //proceso cada caracter 
-     for character in file_contents.chars() {
+     for (index, character) in file_contents.char_indices() {
         // Aquí puedes procesar cada carácter individual del laberinto
         // character es el carácter actual
         if character == '\n'{
@@ -32,9 +48,11 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
         };
         if  character != ' ' {   
             if character == 'B'{
+                
                 let bomba_normal = Bomba {
                     position: (position.0, position.1),
                     typee: TypeBomba::Normal,
+                    reach: file_contents.chars().nth(index + 1),
                 };
                 println!("Posición de la bomba normal: {:?}", bomba_normal.position);
                 bombas.push(bomba_normal);
@@ -43,27 +61,16 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                 let bomba_traspaso = Bomba {
                     position: (position.0, position.1),
                     typee: TypeBomba::Traspaso,
+                    reach: file_contents.chars().nth(index + 1),
+
                 };
                 bombas.push(bomba_traspaso);
             }
             
-            //println!("{}", character)
+            println!("{}", character)
         }
     }
-    // Supongamos que tienes un vector de bombas llamado 'bombas' que contiene todas las bombas.
-for bomba in &bombas {
-    if bomba.position == (coordinate_x, coordinate_y) {
-        match bomba.typee {
-            TypeBomba::Normal => {
-                println!("¡Encontraste una bomba normal en la coordenada ({}, {})!", coordinate_x, coordinate_y);
-            }
-            TypeBomba::Traspaso => {
-                println!("¡Encontraste una bomba de traspaso en la coordenada ({}, {})!", coordinate_x, coordinate_y);
-            }
-        }
-        // Haz lo que necesites hacer cuando encuentres la bomba aquí.
-    }
-}
 
+    validate_maze(bombas, coordinate_x, coordinate_y);
     Ok(())
 }
