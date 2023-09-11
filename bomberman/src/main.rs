@@ -10,6 +10,8 @@ use std::fs::read_to_string;
 use file::read_file;
 use std::env;
 use crate::bomberman::create_objects;
+//use crate::bomberman::show_maze;
+
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     let arguments: Vec<String> = env::args().collect();
@@ -43,10 +45,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let objects = match create_objects(&mut file_contents, coordinate_x, coordinate_y) {
-        Ok(resultado) => resultado,
-        Err(error) => return Err(error),
+    let game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y) {
+        Ok(data) => data,
+        Err(error) => {
+            eprintln!("Error: {}", error);
+            return Err(error);
+        }
     };
+    
+    // let final_maze = match show_maze(&objects){
+    //     Ok(resultado) => resultado,
+    //     Err(error) => return Err(error),
+
+    // }
 
     Ok(())
 }

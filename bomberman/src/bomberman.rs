@@ -1,32 +1,39 @@
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum TypeBomba {
     Normal,
     Traspaso,
 }
-struct Bomba {
+#[derive(Clone)]
+pub struct Bomba {
     position: (usize, usize),
     typee: TypeBomba,
     reach: usize,
 }
-
-struct Enemigo{
+#[derive(Clone)]
+pub struct Enemigo{
     position: (usize, usize),
     lives: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum TypeDetour {
     Left,
     Right,
     Up,
     Down,
 }
-
-struct Detour{
+#[derive(Clone)]
+pub struct Detour{
     position: (usize, usize),
     direction: TypeDetour,
+}
+
+pub struct GameData {
+    pub bombas: Vec<Bomba>,
+    pub enemies: Vec<Enemigo>,
+    pub detours: Vec<Detour>,
 }
 
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
@@ -51,7 +58,7 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
         Err("No se encontró una bomba en las coordenadas especificadas.".into())
     }
 }
-pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
+pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize) -> Result<GameData, Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
     let mut enemies: Vec<Enemigo> = Vec::new();
@@ -152,7 +159,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
             //println!("{}", character)
         }
     }
-    match validate_maze(bombas, coordinate_x, coordinate_y) {
+    match validate_maze(bombas.clone(), coordinate_x, coordinate_y) {
         Ok(_) => {
             // La validación fue exitosa, continúa el programa
         }
@@ -160,5 +167,11 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
             eprintln!("Error: {}", error);
         }
     }
-    Ok(())
+    let game_data = GameData {
+        bombas: bombas.clone(),
+        enemies: enemies.clone(),
+        detours: detours.clone(),
+    };
+    Ok(game_data)
 }
+//pub fn show_maze(file_contents: &mut str) -> Result<(), Box<dyn Error>>{
