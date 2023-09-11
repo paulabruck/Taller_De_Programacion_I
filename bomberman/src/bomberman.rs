@@ -10,6 +10,22 @@ struct Bomba {
     typee: TypeBomba,
     reach: usize,
 }
+
+struct Enemigo{
+    position: (usize, usize),
+    lives: usize,
+}
+#[derive(Debug)]
+enum TypeDetour {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+struct Detour{
+    position: (usize, usize),
+    direction: TypeDetour,
+}
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
     let mut bomba_encontrada = false;
     for bomba in &bombas {
@@ -36,6 +52,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
     let mut chars = file_contents.chars();
+
     while let Some(character) = chars.next(){
         if character == '\n'{
             position.1 = 0;
@@ -45,47 +62,49 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
             position.1 += 1;
         }
         if character == '\n' || character == '_' {
-
             continue;
         };
         if  character != ' ' {   
-            if character == 'B'{
+            if character == 'B' || character == 'S'{
                 if let Some(next_char) = chars.next() {
                     if let Some(digit) = next_char.to_digit(10) {
                         let value_as_usize = digit as usize;
-                        println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
-                        let bomba_normal = Bomba {
-                            position: (position.0, position.1),
-                            typee: TypeBomba::Normal,
-                            reach: value_as_usize,
-                        };
-                        println!("Posición de la bomba normal: {:?}", bomba_normal.position);
-                        bombas.push(bomba_normal);
-                    }
-                }
-            }
-            if character == 'S'{
-                if let Some(next_char) = chars.next() {
-                    if let Some(digit) = next_char.to_digit(10) {
-                        let value_as_usize = digit as usize;
-                        println!("Next character after 'S' is '{}', Converted to usize: {}", next_char, value_as_usize);
-                        let bomba_traspaso = Bomba {
+                        if character == 'B'{
+                            println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
+                            let bomba_normal = Bomba {
+                                position: (position.0, position.1),
+                                typee: TypeBomba::Normal,
+                                reach: value_as_usize,
+                            };
+                            println!("Posición de la bomba normal: {:?}", bomba_normal.position);
+                            bombas.push(bomba_normal);
+
+                        }else{
+                            println!("Next character after 'S' is '{}', Converted to usize: {}", next_char, value_as_usize);
+                            let bomba_traspaso = Bomba {
                             position: (position.0, position.1),
                             typee: TypeBomba::Traspaso,
                             reach: value_as_usize,
-        
-                        };
-                        println!("Posición de la bomba traspaso: {:?}", bomba_traspaso.position);
-                        bombas.push(bomba_traspaso);
+                            };
+                            println!("Posición de la bomba traspaso: {:?}", bomba_traspaso.position);
+                            bombas.push(bomba_traspaso);
+
+                        }
                     }
                 }
             }
-            println!("{}", character)
+            if character == 'F'{
+
+            }
+            if character == 'D' {
+
+            }
+            //println!("{}", character)
         }
     }
     match validate_maze(bombas, coordinate_x, coordinate_y) {
         Ok(_) => {
-            // La validación fue exitosa, continúa con tu programa
+            // La validación fue exitosa, continúa el programa
         }
         Err(error) => {
             eprintln!("Error: {}", error);
