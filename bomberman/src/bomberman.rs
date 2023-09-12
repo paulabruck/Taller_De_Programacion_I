@@ -188,7 +188,7 @@ pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usi
         // Guarda el alcance de la bomba
         alcance = bomba.reach;
         posicion_bomba = bomba.position;
-        println!("Alcance de la bomba x: {}", coordinate_x);
+        //println!("Alcance de la bomba x: {}", coordinate_x);
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
         game_data.bombas.retain(|b| b.position != (coordinate_x, coordinate_y));
         for row in &game_data.laberinto {
@@ -205,10 +205,6 @@ pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usi
     // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
     // y el alcance de la bomba `alcance`.
 let (x, y) = (coordinate_x, coordinate_y);
-//alcance += coordinate_y;
-println!("r {}", game_data.laberinto[4][3]);
-println!("r {}", game_data.laberinto[4][4]);
-println!("r {}", game_data.laberinto[4][5]);
 // Recorrer hacia abajo
 for dx in 1..=alcance  {
     let mut nueva_x = x.wrapping_add(1 * dx);
@@ -216,8 +212,8 @@ for dx in 1..=alcance  {
     // Verificar si la nueva posición está dentro de los límites del laberinto
     if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
         let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
-        if objeto == "D"{
-            println!("pos {}", objeto);
+        if objeto.starts_with("D"){
+            println!("¡Encontraste un desvio en la posición ({}, {})!", nueva_x, y);
         }
         if objeto == "E"{
             println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
@@ -236,6 +232,7 @@ for dx in 1..=alcance  {
         break;
     }
 }
+let (x, y) = (coordinate_x, coordinate_y);
 // Recorrer hacia la arriba
 for dx in 1..=alcance  {
     println!("dx {}", dx);
@@ -246,8 +243,8 @@ for dx in 1..=alcance  {
     // Verificar si la nueva posición está dentro de los límites del laberinto
     if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
         let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
-        if objeto == "D"{
-            println!("pos {}", objeto);
+        if objeto.starts_with("D"){
+            println!("¡Encontraste un desvio en la posición ({}, {})!", nueva_x, y);
         }
         if objeto == "E"{
             println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
@@ -260,6 +257,68 @@ for dx in 1..=alcance  {
         }
         if objeto == "B" || objeto == "S"{
             println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
+        }
+    } else {
+        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+        break;
+    }
+}
+let (x, y) = (coordinate_x, coordinate_y);
+// Recorrer hacia la derecha
+for dx in 1..=alcance  {
+    println!("dx {}", dx);
+    println!("y {}", y);
+    let  nueva_y = y.wrapping_add(1 * dx);
+    println!("x {}", nueva_y);
+    
+    // Verificar si la nueva posición está dentro de los límites del laberinto
+    if nueva_y < game_data.laberinto.len() && y < game_data.laberinto[nueva_y].len() {
+        let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
+        if objeto.starts_with("D"){
+            println!("¡Encontraste un desvio en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "E"{
+            println!("¡Encontraste un enemigo en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "R"{
+            println!("¡Encontraste una roca en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "W"{
+            println!("¡Encontraste una pared en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "B" || objeto == "S"{
+            println!("¡Encontraste una bomba en la posición ({}, {})!", x, nueva_y);
+        }
+    } else {
+        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+        break;
+    }
+}
+let (x, y) = (coordinate_x, coordinate_y);
+// Recorrer hacia la izquierda
+for dx in 1..=alcance  {
+    println!("dx {}", dx);
+    //println!("x {}", x);
+    let  nueva_y = y.wrapping_sub(1 * dx);
+    println!("x {}", nueva_y);
+    
+    // Verificar si la nueva posición está dentro de los límites del laberinto
+    if nueva_y < game_data.laberinto.len() && y < game_data.laberinto[nueva_y].len() {
+        let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
+        if objeto.starts_with("D"){
+            println!("¡Encontraste un desvio en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "E"{
+            println!("¡Encontraste un enemigo en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "R"{
+            println!("¡Encontraste una roca en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto == "W"{
+            println!("¡Encontraste una pared en la posición ({}, {})!", x, nueva_y);
+        }
+        if objeto.starts_with("B") || objeto.starts_with("S"){
+            println!("¡Encontraste una bomba en la posición ({}, {})!", x, nueva_y);
         }
     } else {
         // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
