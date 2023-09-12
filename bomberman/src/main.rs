@@ -22,8 +22,8 @@ fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
 
     let input_file = arguments[1].clone();
     let output_directory = arguments[2].clone();
-    let coordinate_x = arguments[3].parse()?;
-    let coordinate_y = arguments[4].parse()?;
+    let coordinate_x = arguments[4].parse()?;
+    let coordinate_y =  arguments[3].parse()?;
 
     Ok((input_file, output_directory, coordinate_x, coordinate_y))
 }
