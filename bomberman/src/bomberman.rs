@@ -204,7 +204,69 @@ pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usi
     //chequear lo q afecta 
     // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
     // y el alcance de la bomba `alcance`.
+let (x, y) = (coordinate_x, coordinate_y);
+//alcance += coordinate_y;
+println!("r {}", game_data.laberinto[4][3]);
+println!("r {}", game_data.laberinto[4][4]);
+println!("r {}", game_data.laberinto[4][5]);
+// Recorrer hacia abajo
+for dx in 1..=alcance  {
+    let mut nueva_x = x.wrapping_add(1 * dx);
+    //let nueva_x = x + dx;
+    // Verificar si la nueva posición está dentro de los límites del laberinto
+    if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
+        let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
+        if objeto == "D"{
+            println!("pos {}", objeto);
+        }
+        if objeto == "E"{
+            println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "R"{
+            println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "W"{
+            println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "B" || objeto == "S"{
+            println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
+        }
+    } else {
+        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+        break;
+    }
+}
+// Recorrer hacia la arriba
+for dx in 1..=alcance  {
+    println!("dx {}", dx);
+    //println!("x {}", x);
+    let mut nueva_x = x.wrapping_sub(1 * dx);
+    println!("x {}", nueva_x);
     
+    // Verificar si la nueva posición está dentro de los límites del laberinto
+    if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
+        let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
+        if objeto == "D"{
+            println!("pos {}", objeto);
+        }
+        if objeto == "E"{
+            println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "R"{
+            println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "W"{
+            println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
+        }
+        if objeto == "B" || objeto == "S"{
+            println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
+        }
+    } else {
+        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+        break;
+    }
+}
+
     
     
 
