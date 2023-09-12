@@ -1,4 +1,5 @@
 use std::error::Error;
+use std::fmt::Display;
 
 #[derive(Debug, Clone)]
 enum TypeBomba {
@@ -34,7 +35,7 @@ pub struct GameData {
     pub bombas: Vec<Bomba>,
     pub enemies: Vec<Enemigo>,
     pub detours: Vec<Detour>,
-    pub laberinto: Vec<Vec<char>>,
+    pub laberinto: Vec<Vec<String>>,
 }
 
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
@@ -58,7 +59,7 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
         Err("No se encontró una bomba en las coordenadas especificadas.".into())
     }
 }
-pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize, maze:Vec<Vec<char>>) -> Result<GameData, Box<dyn Error>>{
+pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize, maze: Vec<Vec<String>>) -> Result<GameData, Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
     let mut enemies: Vec<Enemigo> = Vec::new();
@@ -181,26 +182,31 @@ pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usi
     //guardo en una varibale el alcance 
     //modifico en el laberinto la B por _ 
     //modifico el vector de bombas 
-    // Busca la bomba en la coordenada x e y
-    let mut bomba_encontrada = None;
-    for bomba in &mut game_data.bombas {
-        if bomba.position == (coordinate_x, coordinate_y) {
-            bomba_encontrada = Some(bomba.clone());
-            break;
-        }
-    }
-    // Si se encontró una bomba en la coordenada, realiza las acciones necesarias
-    if let Some(bomba) = bomba_encontrada {
-        // Guarda el alcance en una variable
-        let alcance = bomba.reach;
-        // Modifica el laberinto reemplazando la 'B' por '_'
-        if let Some(row) = game_data.laberinto.get_mut(coordinate_x) {
-            if let Some(cell) = row.get_mut(coordinate_y) {
-                if *cell == 'B' {
-                    *cell = '_';
-                }
+    let mut alcance = 0;
+    let mut posicion_bomba= (0,0);
+    if let Some(bomba) = game_data.bombas.iter_mut().find(|b| b.position == (coordinate_x, coordinate_y)) {
+        // Guarda el alcance de la bomba
+        alcance = bomba.reach;
+        posicion_bomba = bomba.position;
+        println!("Alcance de la bomba x: {}", coordinate_x);
+        game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
+        game_data.bombas.retain(|b| b.position != (coordinate_x, coordinate_y));
+        for row in &game_data.laberinto {
+            for cell in row {
+                print!("{}", cell);
+                print!(" ");
             }
+            println!(); // Salto de línea para separar las filas
         }
     }
+
+
+    //chequear lo q afecta 
+    // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
+    // y el alcance de la bomba `alcance`.
+    
+    
+    
+
 Ok(())
 }
