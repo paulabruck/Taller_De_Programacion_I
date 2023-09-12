@@ -39,15 +39,32 @@ pub struct GameData {
     pub pared_intercepta: bool,
     pub roca_intercepta: bool,
 }
-fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba) {
+fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize) {
     if objeto.starts_with("D") {
         println!("¡Encontraste un desvío en la posición ({}, {})!", nueva_x, y);
+        println!("ALCANCE RESTANTE  {}!",  iteraciones_restantes);
+
+        if objeto == "DU"{
+            recorrer_hacia_arriba( game_data,nueva_x, y,iteraciones_restantes, typee.clone());
+        }
+        if objeto == "DD"{
+            recorrer_hacia_abajo( game_data,nueva_x, y,iteraciones_restantes, typee.clone());
+        }
+        if objeto == "DR"{
+            recorrer_hacia_derecha( game_data,nueva_x, y,iteraciones_restantes, typee.clone());
+        }
+        if objeto == "DL"{
+            recorrer_hacia_izquierda( game_data,nueva_x, y,iteraciones_restantes, typee.clone());
+        }
     }
     if objeto.starts_with("F") {
         println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
         if let Some(enemy) = game_data.enemies.iter_mut().find(| enemy| enemy.position == (nueva_x, y)) {
             if enemy.lives > 0 {
                 enemy.lives -= 1;
+                let lives_str = enemy.lives.to_string();
+                let objeto_str = "F".to_string() + &lives_str;
+                game_data.laberinto[nueva_x][y] = objeto_str;
                 println!("Vidas del enemigo: {}", enemy.lives);
             }
             if enemy.lives == 0 {
@@ -74,11 +91,16 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
 fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData{
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_add(1 * dx);
+        
+        println!("dx ({})!", dx);
+        println!("alxance ({})!", alcance);
+        let mut iteraciones_restantes = alcance - dx;
+        println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee);
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee, iteraciones_restantes);
             *game_data = game_data_clone; 
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
@@ -98,11 +120,15 @@ fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: u
 fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_sub(1 * dx);
+        println!("dx ({})!", dx);
+        println!("alxance ({})!", alcance);
+        let mut iteraciones_restantes = alcance - dx;
+        println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee);
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee, iteraciones_restantes);
             *game_data = game_data_clone; 
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
@@ -120,11 +146,15 @@ fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: 
 fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_add(1 * dx);
+        println!("dx ({})!", dx);
+        println!("alxance ({})!", alcance);
+        let mut iteraciones_restantes = alcance - dx;
+        println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee);
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee, iteraciones_restantes);
             *game_data = game_data_clone; 
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
@@ -142,11 +172,15 @@ fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance:
 fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_sub(1 * dx);
+        println!("dx ({})!", dx);
+        println!("alxance ({})!", alcance);
+        let mut iteraciones_restantes = alcance - dx;
+        println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee);
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee, iteraciones_restantes);
             *game_data = game_data_clone; 
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true{
                 break;

@@ -44,39 +44,19 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(error);
         }
     };
-    // let mut maze: Vec<Vec<char>> = Vec::new();
-    
-    // for line in file_contents.lines() {
-    //     let row: Vec<char> = line.chars().filter(|&c| c != ' ').collect();
-    //     if !row.is_empty() {
-    //         maze.push(row);
-    //     }
-    // }
-    
     let mut maze: Vec<Vec<String>> = Vec::new();
     
     for line in file_contents.lines() {
         let row: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
         maze.push(row);
     }
-     //mostrar maze cargado
-    //  for row in &maze {
-    //     for cell in row {
-    //         print!("{}", cell);
-    //         print!(" ");
-    //     }
-    //     println!(); // Salto de línea para separar las filas
-    // }
-
-    
     let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(error) => {
             eprintln!("Error: {}", error);
             return Err(error);
         }
-    };
-    
+    };    
     let final_maze = match show_maze( &mut game_data, coordinate_x, coordinate_y){
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
