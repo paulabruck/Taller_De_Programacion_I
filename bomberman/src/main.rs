@@ -11,6 +11,7 @@ use file::read_file;
 use std::env;
 use crate::bomberman::create_objects;
 use crate::bomberman::show_maze;
+use crate::bomberman::guardar_laberinto_en_archivo;
 
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
@@ -62,6 +63,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         Err(error) => return Err(error),
 
     };
+
+    //guardar_laberinto_en_archivo(&game_data.laberinto, &output_directory).unwrap();
+    match guardar_laberinto_en_archivo(&game_data.laberinto,  &output_directory) {
+        Ok(_) => println!("El laberinto se ha guardado exitosamente."),
+        Err(err) => eprintln!("Error al guardar el laberinto: {}", err),
+    }
+    
 
     Ok(())
 }

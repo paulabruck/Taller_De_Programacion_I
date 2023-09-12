@@ -1,5 +1,23 @@
 use std::error::Error;
 use std::fmt::Display;
+use std::fs::File;
+use std::io::Write;
+
+// ...
+
+pub fn guardar_laberinto_en_archivo(laberinto: &Vec<Vec<String>>, ruta: &str) -> Result<(), std::io::Error> {
+    let mut file = File::create(ruta)?;
+    
+    for row in laberinto {
+        for cell in row {
+            file.write_all(cell.as_bytes())?;
+            file.write_all(b" ")?;
+        }
+        file.write_all(b"\n")?; // Salto de línea para separar las filas
+    }
+
+    Ok(())
+}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum TypeBomba {
@@ -42,7 +60,7 @@ pub struct GameData {
 fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize) {
     if objeto.starts_with("D") {
         println!("¡Encontraste un desvío en la posición ({}, {})!", nueva_x, y);
-        println!("ALCANCE RESTANTE  {}!",  iteraciones_restantes);
+        //println!("ALCANCE RESTANTE  {}!",  iteraciones_restantes);
 
         if objeto == "DU"{
             recorrer_hacia_arriba( game_data,nueva_x, y,iteraciones_restantes, typee.clone());
@@ -86,16 +104,17 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
     }
     if objeto.starts_with("B") || objeto.starts_with("S") {
         println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
+        show_maze(  game_data, nueva_x, y);
     }
 }
 fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData{
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_add(1 * dx);
         
-        println!("dx ({})!", dx);
-        println!("alxance ({})!", alcance);
+        //println!("dx ({})!", dx);
+        //println!("alxance ({})!", alcance);
         let mut iteraciones_restantes = alcance - dx;
-        println!("¡iteraciones ({})!", iteraciones_restantes);
+        //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
@@ -120,10 +139,10 @@ fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: u
 fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_sub(1 * dx);
-        println!("dx ({})!", dx);
-        println!("alxance ({})!", alcance);
+       //println!("dx ({})!", dx);
+        //println!("alxance ({})!", alcance);
         let mut iteraciones_restantes = alcance - dx;
-        println!("¡iteraciones ({})!", iteraciones_restantes);
+        //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
@@ -146,10 +165,10 @@ fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: 
 fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_add(1 * dx);
-        println!("dx ({})!", dx);
-        println!("alxance ({})!", alcance);
+        //println!("dx ({})!", dx);
+        //println!("alxance ({})!", alcance);
         let mut iteraciones_restantes = alcance - dx;
-        println!("¡iteraciones ({})!", iteraciones_restantes);
+        //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
@@ -172,10 +191,10 @@ fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance:
 fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_sub(1 * dx);
-        println!("dx ({})!", dx);
-        println!("alxance ({})!", alcance);
+        //println!("dx ({})!", dx);
+        //println!("alxance ({})!", alcance);
         let mut iteraciones_restantes = alcance - dx;
-        println!("¡iteraciones ({})!", iteraciones_restantes);
+        //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
@@ -232,23 +251,23 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                     if let Some(digit) = next_char.to_digit(10) {
                         let value_as_usize = digit as usize;
                         if character == 'B'{
-                            println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
+                           // println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
                             let bomba_normal = Bomba {
                                 position: (position.0, position.1),
                                 typee: TypeBomba::Normal,
                                 reach: value_as_usize,
                             };
-                            println!("Posición de la bomba normal: {:?}", bomba_normal.position);
+                           // println!("Posición de la bomba normal: {:?}", bomba_normal.position);
                             bombas.push(bomba_normal);
 
                         }else{
-                            println!("Next character after 'S' is '{}', Converted to usize: {}", next_char, value_as_usize);
+                           // println!("Next character after 'S' is '{}', Converted to usize: {}", next_char, value_as_usize);
                             let bomba_traspaso = Bomba {
                             position: (position.0, position.1),
                             typee: TypeBomba::Traspaso,
                             reach: value_as_usize,
                             };
-                            println!("Posición de la bomba traspaso: {:?}", bomba_traspaso.position);
+                           // println!("Posición de la bomba traspaso: {:?}", bomba_traspaso.position);
                             bombas.push(bomba_traspaso);
 
                         }
@@ -263,7 +282,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                             position: (position.0, position.1),
                             lives: value_as_usize,
                         };
-                        println!("Posición del enemigo: {:?}", enemy.position);
+                        //println!("Posición del enemigo: {:?}", enemy.position);
                         enemies.push(enemy);
                     }
                 }    
@@ -275,7 +294,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                             position: (position.0, position.1),
                             direction: TypeDetour::Right,
                         };  
-                        println!("Posición del desvio: {:?}", detour.position);
+                      //  println!("Posición del desvio: {:?}", detour.position);
                         detours.push(detour);
                     }
                     if next_char == 'L'{
@@ -283,7 +302,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                             position: (position.0, position.1),
                             direction: TypeDetour::Left,
                         };  
-                        println!("Posición del desvio: {:?}", detour.position);
+                       // println!("Posición del desvio: {:?}", detour.position);
                         detours.push(detour);
                     }
                     if next_char == 'U'{
@@ -291,8 +310,8 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                             position: (position.0, position.1),
                             direction: TypeDetour::Up,
                         };  
-                        println!("Posición del desvio: {:?}", detour.position);
-                        println!("Next character after 'D' is '{}'", next_char);
+                        //println!("Posición del desvio: {:?}", detour.position);
+                       // println!("Next character after 'D' is '{}'", next_char);
                         detours.push(detour);
                     }
                     if next_char == 'D'{
@@ -300,7 +319,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                             position: (position.0, position.1),
                             direction: TypeDetour::Down,
                         };  
-                        println!("Posición del desvio: {:?}", detour.position);
+                       // println!("Posición del desvio: {:?}", detour.position);
                         detours.push(detour);
                     }
                     
@@ -352,6 +371,7 @@ pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y
     recorrer_hacia_arriba(&mut game_data,coordinate_x, coordinate_y,alcance, tipo_bomba.clone());
     recorrer_hacia_derecha(&mut game_data,coordinate_x,coordinate_y, alcance, tipo_bomba.clone());
     recorrer_hacia_izquierda(&mut game_data, coordinate_x, coordinate_y, alcance, tipo_bomba.clone());
+    println!(); 
     for row in &game_data.laberinto {
         for cell in row {
             print!("{}", cell);
