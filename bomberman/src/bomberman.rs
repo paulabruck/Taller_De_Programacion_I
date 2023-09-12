@@ -1,7 +1,7 @@
 use std::error::Error;
 use std::fmt::Display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 enum TypeBomba {
     Normal,
     Traspaso,
@@ -37,8 +37,9 @@ pub struct GameData {
     pub detours: Vec<Detour>,
     pub laberinto: Vec<Vec<String>>,
     pub pared_intercepta: bool,
+    pub roca_intercepta: bool,
 }
-fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize) {
+fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba) {
     if objeto.starts_with("D") {
         println!("¡Encontraste un desvío en la posición ({}, {})!", nueva_x, y);
     }
@@ -57,7 +58,9 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
     }
     if objeto == "R" {
         println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
-
+        if typee == TypeBomba::Normal {
+            game_data.roca_intercepta = true;
+        }
     }
     if objeto == "W" {
         println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
@@ -68,16 +71,16 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
         println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
     }
 }
-fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData{
+fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData{
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_add(1 * dx);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee);
             *game_data = game_data_clone; 
-            if game_data.pared_intercepta == true {
+            if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
         } else {
@@ -85,21 +88,23 @@ fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: u
             break;
         }
     }
+    game_data.pared_intercepta = false;
+    game_data.roca_intercepta = false;
     game_data
 }
 
 // Haz lo mismo para las otras funciones de recorrido (hacia arriba, derecha e izquierda).
 
-fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_sub(1 * dx);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee);
             *game_data = game_data_clone; 
-            if game_data.pared_intercepta == true {
+            if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
         } else {
@@ -107,20 +112,21 @@ fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: 
             break;
         }
     }
-
+    game_data.pared_intercepta = false;
+    game_data.roca_intercepta = false;
     game_data // Devuelve el game_data actualizado
 }
 
-fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_add(1 * dx);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee);
             *game_data = game_data_clone; 
-            if game_data.pared_intercepta == true {
+            if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
         } else {
@@ -128,20 +134,21 @@ fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance:
             break;
         }
     }
-
+    game_data.pared_intercepta = false;
+    game_data.roca_intercepta = false;
     game_data // Devuelve el game_data actualizado
 }
 
-fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba) -> &mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_sub(1 * dx);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
             let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
             let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y, typee);
             *game_data = game_data_clone; 
-            if game_data.pared_intercepta == true {
+            if game_data.pared_intercepta == true || game_data.roca_intercepta == true{
                 break;
             }
         } else {
@@ -149,7 +156,8 @@ fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcanc
             break;
         }
     }
-
+    game_data.pared_intercepta = false;
+    game_data.roca_intercepta = false;
     game_data // Devuelve el game_data actualizado
 }
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
@@ -280,6 +288,8 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
         detours: detours.clone(),
         laberinto: maze.clone(),
         pared_intercepta: false,
+        roca_intercepta: false,
+
 
     };
     Ok(game_data)
@@ -290,10 +300,12 @@ pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y
     //modifico en el laberinto la B por _ 
     //modifico el vector de bombas 
     let mut alcance = 0;
+    let mut tipo_bomba = TypeBomba::Normal;
     let mut posicion_bomba= (0,0);
     if let Some(bomba) = game_data.bombas.iter_mut().find(|b| b.position == (coordinate_x, coordinate_y)) {
         // Guarda el alcance de la bomba
         alcance = bomba.reach;
+        tipo_bomba = bomba.typee;
         posicion_bomba = bomba.position;
         //println!("Alcance de la bomba x: {}", coordinate_x);
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
@@ -302,10 +314,10 @@ pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y
     //chequear lo q afecta 
     // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
     // y el alcance de la bomba `alcance`.
-    recorrer_hacia_abajo(&mut game_data,coordinate_x, coordinate_y, alcance);
-    recorrer_hacia_arriba(&mut game_data,coordinate_x, coordinate_y,alcance);
-    recorrer_hacia_derecha(&mut game_data,coordinate_x,coordinate_y, alcance);
-    recorrer_hacia_izquierda(&mut game_data, coordinate_x, coordinate_y, alcance);
+    recorrer_hacia_abajo(&mut game_data,coordinate_x, coordinate_y, alcance, tipo_bomba.clone());
+    recorrer_hacia_arriba(&mut game_data,coordinate_x, coordinate_y,alcance, tipo_bomba.clone());
+    recorrer_hacia_derecha(&mut game_data,coordinate_x,coordinate_y, alcance, tipo_bomba.clone());
+    recorrer_hacia_izquierda(&mut game_data, coordinate_x, coordinate_y, alcance, tipo_bomba.clone());
     for row in &game_data.laberinto {
         for cell in row {
             print!("{}", cell);
