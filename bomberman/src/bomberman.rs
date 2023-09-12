@@ -36,6 +36,7 @@ pub struct GameData {
     pub enemies: Vec<Enemigo>,
     pub detours: Vec<Detour>,
     pub laberinto: Vec<Vec<String>>,
+    pub pared_intercepta: bool,
 }
 fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize) {
     if objeto.starts_with("D") {
@@ -45,20 +46,23 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
         println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
         if let Some(enemy) = game_data.enemies.iter_mut().find(| enemy| enemy.position == (nueva_x, y)) {
             if enemy.lives > 0 {
-                enemy.lives -= 2;
+                enemy.lives -= 1;
                 println!("Vidas del enemigo: {}", enemy.lives);
             }
             if enemy.lives == 0 {
                 game_data.laberinto[nueva_x][y] = "_".to_string();
-                // game_data.enemies.retain(|b| b.position != (nueva_x, y));
+                game_data.enemies.retain(|b| b.position != (nueva_x, y));
             }
         }
     }
     if objeto == "R" {
         println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
+
     }
     if objeto == "W" {
         println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
+        game_data.pared_intercepta = true;
+        
     }
     if objeto.starts_with("B") || objeto.starts_with("S") {
         println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
@@ -73,6 +77,9 @@ fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: u
             let mut game_data_clone = game_data.clone();
             chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
             *game_data = game_data_clone; 
+            if game_data.pared_intercepta == true {
+                break;
+            }
         } else {
             // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
             break;
@@ -92,6 +99,9 @@ fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: 
             let mut game_data_clone = game_data.clone();
             chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
             *game_data = game_data_clone; 
+            if game_data.pared_intercepta == true {
+                break;
+            }
         } else {
             // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
             break;
@@ -110,6 +120,9 @@ fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance:
             let mut game_data_clone = game_data.clone();
             chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
             *game_data = game_data_clone; 
+            if game_data.pared_intercepta == true {
+                break;
+            }
         } else {
             // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
             break;
@@ -128,6 +141,9 @@ fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcanc
             let mut game_data_clone = game_data.clone();
             chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
             *game_data = game_data_clone; 
+            if game_data.pared_intercepta == true {
+                break;
+            }
         } else {
             // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
             break;
@@ -263,6 +279,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
         enemies: enemies.clone(),
         detours: detours.clone(),
         laberinto: maze.clone(),
+        pared_intercepta: false,
 
     };
     Ok(game_data)
