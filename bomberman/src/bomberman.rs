@@ -30,27 +30,117 @@ pub struct Detour{
     position: (usize, usize),
     direction: TypeDetour,
 }
-
+#[derive(Clone)]
 pub struct GameData {
     pub bombas: Vec<Bomba>,
     pub enemies: Vec<Enemigo>,
     pub detours: Vec<Detour>,
     pub laberinto: Vec<Vec<String>>,
 }
+fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize) {
+    if objeto.starts_with("D") {
+        println!("¡Encontraste un desvío en la posición ({}, {})!", nueva_x, y);
+    }
+    if objeto.starts_with("F") {
+        println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
+        if let Some(enemy) = game_data.enemies.iter_mut().find(| enemy| enemy.position == (nueva_x, y)) {
+            if enemy.lives > 0 {
+                enemy.lives -= 2;
+                println!("Vidas del enemigo: {}", enemy.lives);
+            }
+            if enemy.lives == 0 {
+                game_data.laberinto[nueva_x][y] = "_".to_string();
+                // game_data.enemies.retain(|b| b.position != (nueva_x, y));
+            }
+        }
+    }
+    if objeto == "R" {
+        println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
+    }
+    if objeto == "W" {
+        println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
+    }
+    if objeto.starts_with("B") || objeto.starts_with("S") {
+        println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
+    }
+}
+fn recorrer_hacia_abajo(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData{
+    for dx in 1..=alcance {
+        let mut nueva_x = x.wrapping_add(1 * dx);
+        // Verificar si la nueva posición está dentro de los límites del laberinto
+        if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
+            let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
+            let mut game_data_clone = game_data.clone();
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
+            *game_data = game_data_clone; 
+        } else {
+            // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+            break;
+        }
+    }
+    game_data
+}
 
+// Haz lo mismo para las otras funciones de recorrido (hacia arriba, derecha e izquierda).
+
+fn recorrer_hacia_arriba(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+    for dx in 1..=alcance {
+        let mut nueva_x = x.wrapping_sub(1 * dx);
+        // Verificar si la nueva posición está dentro de los límites del laberinto
+        if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
+            let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
+            let mut game_data_clone = game_data.clone();
+            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y);
+            *game_data = game_data_clone; 
+        } else {
+            // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+            break;
+        }
+    }
+
+    game_data // Devuelve el game_data actualizado
+}
+
+fn recorrer_hacia_derecha(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+    for dx in 1..=alcance {
+        let nueva_y = y.wrapping_add(1 * dx);
+        // Verificar si la nueva posición está dentro de los límites del laberinto
+        if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
+            let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
+            let mut game_data_clone = game_data.clone();
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
+            *game_data = game_data_clone; 
+        } else {
+            // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+            break;
+        }
+    }
+
+    game_data // Devuelve el game_data actualizado
+}
+
+fn recorrer_hacia_izquierda(game_data: &mut GameData, x: usize, y: usize, alcance: usize) -> &mut GameData {
+    for dx in 1..=alcance {
+        let nueva_y = y.wrapping_sub(1 * dx);
+        // Verificar si la nueva posición está dentro de los límites del laberinto
+        if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
+            let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
+            let mut game_data_clone = game_data.clone();
+            chequear_objetos(&mut game_data_clone, objeto, x, nueva_y);
+            *game_data = game_data_clone; 
+        } else {
+            // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
+            break;
+        }
+    }
+
+    game_data // Devuelve el game_data actualizado
+}
 fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
     let mut bomba_encontrada = false;
     for bomba in &bombas {
         if bomba.position == (coordinate_x, coordinate_y) {
             bomba_encontrada = true;
-            match bomba.typee {
-                TypeBomba::Normal => {
-                    println!("¡Encontraste una bomba normal en la coordenada ({}, {})!", coordinate_x, coordinate_y);
-                }
-                TypeBomba::Traspaso => {
-                    println!("¡Encontraste una bomba de traspaso en la coordenada ({}, {})!", coordinate_x, coordinate_y);
-                }
-            }
         }
     }
     if bomba_encontrada {
@@ -59,6 +149,7 @@ fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> 
         Err("No se encontró una bomba en las coordenadas especificadas.".into())
     }
 }
+
 pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize, maze: Vec<Vec<String>>) -> Result<GameData, Box<dyn Error>>{
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
@@ -157,7 +248,6 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
                     
                 }
             }    
-            //println!("{}", character)
         }
     }
     match validate_maze(bombas.clone(), coordinate_x, coordinate_y) {
@@ -177,7 +267,7 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
     };
     Ok(game_data)
 }
-pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
+pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
     //busco en el vector de bombas la bomba en la coordenada x e y 
     //guardo en una varibale el alcance 
     //modifico en el laberinto la B por _ 
@@ -191,143 +281,22 @@ pub fn show_maze(mut game_data: GameData, coordinate_x: usize, coordinate_y: usi
         //println!("Alcance de la bomba x: {}", coordinate_x);
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
         game_data.bombas.retain(|b| b.position != (coordinate_x, coordinate_y));
-        for row in &game_data.laberinto {
-            for cell in row {
-                print!("{}", cell);
-                print!(" ");
-            }
-            println!(); // Salto de línea para separar las filas
-        }
     }
-
-
     //chequear lo q afecta 
     // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
     // y el alcance de la bomba `alcance`.
-let (x, y) = (coordinate_x, coordinate_y);
-// Recorrer hacia abajo
-for dx in 1..=alcance  {
-    let mut nueva_x = x.wrapping_add(1 * dx);
-    //let nueva_x = x + dx;
-    // Verificar si la nueva posición está dentro de los límites del laberinto
-    if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-        let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
-        if objeto.starts_with("D"){
-            println!("¡Encontraste un desvio en la posición ({}, {})!", nueva_x, y);
+    recorrer_hacia_abajo(&mut game_data,coordinate_x, coordinate_y, alcance);
+    recorrer_hacia_arriba(&mut game_data,coordinate_x, coordinate_y,alcance);
+    recorrer_hacia_derecha(&mut game_data,coordinate_x,coordinate_y, alcance);
+    recorrer_hacia_izquierda(&mut game_data, coordinate_x, coordinate_y, alcance);
+    for row in &game_data.laberinto {
+        for cell in row {
+            print!("{}", cell);
+            print!(" ");
         }
-        if objeto == "E"{
-            println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "R"{
-            println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "W"{
-            println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "B" || objeto == "S"{
-            println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
-        }
-    } else {
-        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
-        break;
+        println!(); // Salto de línea para separar las filas
     }
-}
-let (x, y) = (coordinate_x, coordinate_y);
-// Recorrer hacia la arriba
-for dx in 1..=alcance  {
-    println!("dx {}", dx);
-    //println!("x {}", x);
-    let mut nueva_x = x.wrapping_sub(1 * dx);
-    println!("x {}", nueva_x);
-    
-    // Verificar si la nueva posición está dentro de los límites del laberinto
-    if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-        let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
-        if objeto.starts_with("D"){
-            println!("¡Encontraste un desvio en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "E"{
-            println!("¡Encontraste un enemigo en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "R"{
-            println!("¡Encontraste una roca en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "W"{
-            println!("¡Encontraste una pared en la posición ({}, {})!", nueva_x, y);
-        }
-        if objeto == "B" || objeto == "S"{
-            println!("¡Encontraste una bomba en la posición ({}, {})!", nueva_x, y);
-        }
-    } else {
-        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
-        break;
-    }
-}
-let (x, y) = (coordinate_x, coordinate_y);
-// Recorrer hacia la derecha
-for dx in 1..=alcance  {
-    println!("dx {}", dx);
-    println!("y {}", y);
-    let  nueva_y = y.wrapping_add(1 * dx);
-    println!("x {}", nueva_y);
-    
-    // Verificar si la nueva posición está dentro de los límites del laberinto
-    if nueva_y < game_data.laberinto.len() && y < game_data.laberinto[nueva_y].len() {
-        let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
-        if objeto.starts_with("D"){
-            println!("¡Encontraste un desvio en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "E"{
-            println!("¡Encontraste un enemigo en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "R"{
-            println!("¡Encontraste una roca en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "W"{
-            println!("¡Encontraste una pared en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "B" || objeto == "S"{
-            println!("¡Encontraste una bomba en la posición ({}, {})!", x, nueva_y);
-        }
-    } else {
-        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
-        break;
-    }
-}
-let (x, y) = (coordinate_x, coordinate_y);
-// Recorrer hacia la izquierda
-for dx in 1..=alcance  {
-    println!("dx {}", dx);
-    //println!("x {}", x);
-    let  nueva_y = y.wrapping_sub(1 * dx);
-    println!("x {}", nueva_y);
-    
-    // Verificar si la nueva posición está dentro de los límites del laberinto
-    if nueva_y < game_data.laberinto.len() && y < game_data.laberinto[nueva_y].len() {
-        let objeto = &game_data.laberinto[x][nueva_y]; // Obtener el objeto en la posición
-        if objeto.starts_with("D"){
-            println!("¡Encontraste un desvio en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "E"{
-            println!("¡Encontraste un enemigo en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "R"{
-            println!("¡Encontraste una roca en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto == "W"{
-            println!("¡Encontraste una pared en la posición ({}, {})!", x, nueva_y);
-        }
-        if objeto.starts_with("B") || objeto.starts_with("S"){
-            println!("¡Encontraste una bomba en la posición ({}, {})!", x, nueva_y);
-        }
-    } else {
-        // La nueva posición está fuera de los límites del laberinto, así que detenemos la búsqueda en esa dirección.
-        break;
-    }
-}
-
-    
     
 
-Ok(())
+    Ok(())
 }

@@ -60,16 +60,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         maze.push(row);
     }
      //mostrar maze cargado
-     for row in &maze {
-        for cell in row {
-            print!("{}", cell);
-            print!(" ");
-        }
-        println!(); // Salto de línea para separar las filas
-    }
+    //  for row in &maze {
+    //     for cell in row {
+    //         print!("{}", cell);
+    //         print!(" ");
+    //     }
+    //     println!(); // Salto de línea para separar las filas
+    // }
 
     
-    let game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
+    let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(error) => {
             eprintln!("Error: {}", error);
@@ -77,7 +77,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
     
-    let final_maze = match show_maze(game_data, coordinate_x, coordinate_y){
+    let final_maze = match show_maze( &mut game_data, coordinate_x, coordinate_y){
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
 
