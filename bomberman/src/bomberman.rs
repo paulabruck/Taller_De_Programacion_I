@@ -1,7 +1,6 @@
 use std::error::Error;
-
 #[derive(Debug, Clone, Copy, PartialEq)]
-enum TypeBomba {
+pub enum TypeBomba {
     Normal,
     Traspaso,
 }
@@ -38,6 +37,30 @@ pub struct GameData {
     pub laberinto: Vec<Vec<String>>,
     pub pared_intercepta: bool,
     pub roca_intercepta: bool,
+}
+impl GameData {
+    pub fn find_bomba(&mut self, coordinate_x: usize, coordinate_y: usize) -> Option<&mut Bomba> {
+        self.bombas.iter_mut().find(|b| b.position == (coordinate_x, coordinate_y))
+    }
+    pub fn remove_bomba(&mut self, coordinate_x: usize, coordinate_y: usize) {
+        self.bombas.retain(|b| b.position != (coordinate_x, coordinate_y));
+    }
+    pub fn apply_bomba_effect(&mut self, coordinate_x: usize, coordinate_y: usize, alcance: usize, tipo_bomba: TypeBomba, bomba_copiada: &Bomba) {
+        recorrer_hacia_abajo( self,coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
+        recorrer_hacia_arriba( self,coordinate_x, coordinate_y,alcance, tipo_bomba.clone(), &bomba_copiada);
+        recorrer_hacia_derecha( self,coordinate_x,coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
+        recorrer_hacia_izquierda( self, coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
+    }
+    pub fn validate_maze(&self, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>> {
+        let bomba_encontrada = self.bombas.iter().any(|b| b.position == (coordinate_x, coordinate_y) && b.reach > 0);
+        let vidas_validas = self.enemies.iter().any(|enemy| enemy.lives <= 3 && enemy.lives > 0);
+
+        if bomba_encontrada && vidas_validas {
+            Ok(())
+        } else {
+            Err("No se encontró una bomba en las coordenadas especificadas o las vidas de los enemigos no son válidas.".into())
+        }
+    }
 }
 
 fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize, bomba: &Bomba) {
@@ -211,135 +234,49 @@ fn recorrer_hacia_izquierda<'a>(game_data: &'a mut GameData, x: usize, y: usize,
     game_data // Devuelve el game_data actualizado
 }
 
-fn validate_maze(game_data:GameData, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
-    let vector_bombas = game_data.bombas;
-    let vector_enemigos = game_data.enemies;
-    let mut bomba_encontrada = false;
-    let mut alcance_valido = false;
-    let mut vidas_validas = false;
+// En bomberman/src/bomberman.rs
 
+// use crate::bomba::{Bomba, TypeBomba};
+// use crate::enemigo::Enemigo;
+// use crate::detour::{Detour, TypeDetour};
+// use crate::game_data::GameData;
+// use std::error::Error;
 
-    for bomba in &vector_bombas {
-        if bomba.position == (coordinate_x, coordinate_y) {
-            bomba_encontrada = true;
-            if bomba.reach > 0 {
-                alcance_valido = true;
-            }
-        }
-    }
-    for enemy in &vector_enemigos{
-        if enemy.lives <=  3 || enemy.lives > 0{
-            vidas_validas = true;
-        }
-    }
-    if bomba_encontrada && alcance_valido && vidas_validas{
-            Ok(())
-    } else {
-        Err("No se encontró una bomba en las coordenadas especificadas.".into())
-    }
-}
-
-pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y: usize, maze: Vec<Vec<String>>) -> Result<GameData, Box<dyn Error>>{
+pub fn create_objects(
+    file_contents: &mut str,
+    coordinate_x: usize,
+    coordinate_y: usize,
+    maze: Vec<Vec<String>>,
+) -> Result<GameData, Box<dyn Error>> {
     let mut position: (usize, usize) = (0, 0);
     let mut bombas: Vec<Bomba> = Vec::new();
     let mut enemies: Vec<Enemigo> = Vec::new();
     let mut detours: Vec<Detour> = Vec::new();
     let mut chars = file_contents.chars();
 
-    while let Some(character) = chars.next(){
-        if character == '\n'{
+    while let Some(character) = chars.next() {
+        if character == '\n' {
             position.1 = 0;
             position.0 += 1;
         }
-        if character == ' '{
+        if character == ' ' {
             position.1 += 1;
         }
         if character == '\n' || character == '_' {
             continue;
         };
-        if  character != ' ' {   
-            if character == 'B' || character == 'S'{
-                if let Some(next_char) = chars.next() {
-                    if let Some(digit) = next_char.to_digit(10) {
-                        let value_as_usize = digit as usize;
-                        if character == 'B'{
-                           // println!("Next character after 'B' is '{}', Converted to usize: {}", next_char, value_as_usize);
-                            let bomba_normal = Bomba {
-                                position: (position.0, position.1),
-                                typee: TypeBomba::Normal,
-                                reach: value_as_usize,
-                            };
-                           // println!("Posición de la bomba normal: {:?}", bomba_normal.position);
-                            bombas.push(bomba_normal);
-
-                        }else{
-                           // println!("Next character after 'S' is '{}', Converted to usize: {}", next_char, value_as_usize);
-                            let bomba_traspaso = Bomba {
-                            position: (position.0, position.1),
-                            typee: TypeBomba::Traspaso,
-                            reach: value_as_usize,
-                            };
-                           // println!("Posición de la bomba traspaso: {:?}", bomba_traspaso.position);
-                            bombas.push(bomba_traspaso);
-
-                        }
-                    }
-                }
-            }
-            if character == 'F'{
-                if let Some(next_char) = chars.next() {
-                    if let Some(digit) = next_char.to_digit(10) {
-                        let value_as_usize = digit as usize;
-                        let enemy = Enemigo {
-                            position: (position.0, position.1),
-                            lives: value_as_usize,
-                            bombas_recibidas: None,
-                        };
-                        //println!("Posición del enemigo: {:?}", enemy.position);
-                        enemies.push(enemy);
-                    }
-                }    
-            }
-            if character == 'D' {
-                if let Some(next_char) = chars.next() {
-                    if next_char == 'R'{
-                        let detour = Detour {
-                            position: (position.0, position.1),
-                            direction: TypeDetour::Right,
-                        };  
-                      //  println!("Posición del desvio: {:?}", detour.position);
-                        detours.push(detour);
-                    }
-                    if next_char == 'L'{
-                        let detour = Detour {
-                            position: (position.0, position.1),
-                            direction: TypeDetour::Left,
-                        };  
-                       // println!("Posición del desvio: {:?}", detour.position);
-                        detours.push(detour);
-                    }
-                    if next_char == 'U'{
-                        let detour = Detour {
-                            position: (position.0, position.1),
-                            direction: TypeDetour::Up,
-                        };  
-                        //println!("Posición del desvio: {:?}", detour.position);
-                       // println!("Next character after 'D' is '{}'", next_char);
-                        detours.push(detour);
-                    }
-                    if next_char == 'D'{
-                        let detour = Detour {
-                            position: (position.0, position.1),
-                            direction: TypeDetour::Down,
-                        };  
-                       // println!("Posición del desvio: {:?}", detour.position);
-                        detours.push(detour);
-                    }
-                    
-                }
-            }    
+        if character != ' ' {
+            process_character(
+                character,
+                &mut chars,
+                &mut position,
+                &mut bombas,
+                &mut enemies,
+                &mut detours,
+            );
         }
     }
+
     let game_data = GameData {
         bombas: bombas.clone(),
         enemies: enemies.clone(),
@@ -347,53 +284,120 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
         laberinto: maze.clone(),
         pared_intercepta: false,
         roca_intercepta: false,
-
-
     };
-    match validate_maze(game_data.clone(), coordinate_x, coordinate_y) {
-        Ok(_) => {
-            // La validación fue exitosa, continúa el programa
-        }
-        Err(error) => {
-            eprintln!("Error: {}", error);
-        }
+
+    if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
+        eprintln!("Error: {}", error);
     }
+
     Ok(game_data)
 }
+
+fn process_character(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    bombas: &mut Vec<Bomba>,
+    enemies: &mut Vec<Enemigo>,
+    detours: &mut Vec<Detour>,
+) {
+    match character {
+        'B' | 'S' => process_bomba(character, chars, position, bombas),
+        'F' => process_enemy(character, chars, position, enemies),
+        'D' => process_detour(character, chars, position, detours),
+        _ => {}
+    }
+}
+
+fn process_bomba(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    bombas: &mut Vec<Bomba>,
+) {
+    if let Some(next_char) = chars.next() {
+        if let Some(digit) = next_char.to_digit(10) {
+            let value_as_usize = digit as usize;
+            let bomba = Bomba {
+                position: (position.0, position.1),
+                typee: if character == 'B' {
+                    TypeBomba::Normal
+                } else {
+                    TypeBomba::Traspaso
+                },
+                reach: value_as_usize,
+            };
+            bombas.push(bomba);
+        }
+    }
+}
+
+fn process_enemy(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    enemies: &mut Vec<Enemigo>,
+) {
+    if let Some(next_char) = chars.next() {
+        if let Some(digit) = next_char.to_digit(10) {
+            let value_as_usize = digit as usize;
+            let enemy = Enemigo {
+                position: (position.0, position.1),
+                lives: value_as_usize,
+                bombas_recibidas: None,
+            };
+            enemies.push(enemy);
+        }
+    }
+}
+
+fn process_detour(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    detours: &mut Vec<Detour>,
+) {
+    if let Some(next_char) = chars.next() {
+        let direction = match next_char {
+            'R' => TypeDetour::Right,
+            'L' => TypeDetour::Left,
+            'U' => TypeDetour::Up,
+            'D' => TypeDetour::Down,
+            _ => TypeDetour::Left, // Definir un valor predeterminado apropiado
+        };
+        let detour = Detour {
+            position: (position.0, position.1),
+            direction,
+        };
+        detours.push(detour);
+    }
+}
+
+// Resto del código del módulo bomberman
+
 pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
-    //busco en el vector de bombas la bomba en la coordenada x e y 
-    //guardo en una varibale el alcance 
-    //modifico en el laberinto la B por _ 
-    //modifico el vector de bombas 
     let mut alcance = 0;
     let mut tipo_bomba = TypeBomba::Normal;
     let mut posicion_bomba= (0,0);
-    if let Some(bomba) = game_data.bombas.iter_mut().find(|b| b.position == (coordinate_x, coordinate_y)) {
-        // Guarda el alcance de la bomba
+    if let Some(bomba) = game_data.find_bomba(coordinate_x, coordinate_y) { 
         alcance = bomba.reach;
         tipo_bomba = bomba.typee;
         posicion_bomba = bomba.position;
         let bomba_copiada = bomba.clone();
-        //println!("Alcance de la bomba x: {}", coordinate_x);
+
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
-        game_data.bombas.retain(|b| b.position != (coordinate_x, coordinate_y));
-        recorrer_hacia_abajo(&mut game_data,coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
-        recorrer_hacia_arriba(&mut game_data,coordinate_x, coordinate_y,alcance, tipo_bomba.clone(), &bomba_copiada);
-        recorrer_hacia_derecha(&mut game_data,coordinate_x,coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
-        recorrer_hacia_izquierda(&mut game_data, coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);
-        println!(); 
+        game_data.remove_bomba(coordinate_x, coordinate_y);
+        game_data.apply_bomba_effect(coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);        
     }
-    //chequear lo q afecta 
-    // Supongamos que tienes una matriz llamada `laberinto`, una posición inicial `(x, y)`
-    // y el alcance de la bomba `alcance`.
-    for row in &game_data.laberinto {
+    print_laberinto(&game_data.laberinto);
+    Ok(())
+}
+fn print_laberinto(laberinto: &Vec<Vec<String>>) {
+    for row in laberinto {
         for cell in row {
             print!("{}", cell);
             print!(" ");
         }
         println!(); // Salto de línea para separar las filas
     }
-    
-
-    Ok(())
 }
