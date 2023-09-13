@@ -229,15 +229,29 @@ fn recorrer_hacia_izquierda<'a>(game_data: &'a mut GameData, x: usize, y: usize,
     game_data.roca_intercepta = false;
     game_data // Devuelve el game_data actualizado
 }
-fn validate_maze(bombas:Vec<Bomba>, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
+fn validate_maze(game_data:GameData, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
+    let vector_bombas = game_data.bombas;
+    let vector_enemigos = game_data.enemies;
     let mut bomba_encontrada = false;
-    for bomba in &bombas {
+    let mut alcance_valido = false;
+    let mut vidas_validas = false;
+
+
+    for bomba in &vector_bombas {
         if bomba.position == (coordinate_x, coordinate_y) {
             bomba_encontrada = true;
+            if bomba.reach > 0 {
+                alcance_valido = true;
+            }
         }
     }
-    if bomba_encontrada {
-        Ok(())
+    for enemy in &vector_enemigos{
+        if enemy.lives <=  3 || enemy.lives > 0{
+            vidas_validas = true;
+        }
+    }
+    if bomba_encontrada && alcance_valido && vidas_validas{
+            Ok(())
     } else {
         Err("No se encontró una bomba en las coordenadas especificadas.".into())
     }
@@ -344,14 +358,6 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
             }    
         }
     }
-    match validate_maze(bombas.clone(), coordinate_x, coordinate_y) {
-        Ok(_) => {
-            // La validación fue exitosa, continúa el programa
-        }
-        Err(error) => {
-            eprintln!("Error: {}", error);
-        }
-    }
     let game_data = GameData {
         bombas: bombas.clone(),
         enemies: enemies.clone(),
@@ -362,6 +368,14 @@ pub fn create_objects(file_contents: &mut str, coordinate_x: usize, coordinate_y
 
 
     };
+    match validate_maze(game_data.clone(), coordinate_x, coordinate_y) {
+        Ok(_) => {
+            // La validación fue exitosa, continúa el programa
+        }
+        Err(error) => {
+            eprintln!("Error: {}", error);
+        }
+    }
     Ok(game_data)
 }
 pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
