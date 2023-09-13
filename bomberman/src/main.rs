@@ -8,10 +8,10 @@ use std::path::Path;
 use std::fmt::Display;
 use std::fs::read_to_string;
 use file::read_file;
+use file::guardar_laberinto_en_archivo;
 use std::env;
 use crate::bomberman::create_objects;
 use crate::bomberman::show_maze;
-use crate::bomberman::guardar_laberinto_en_archivo;
 
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {

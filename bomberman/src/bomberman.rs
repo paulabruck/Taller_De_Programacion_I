@@ -1,23 +1,5 @@
 use std::error::Error;
 use std::fmt::Display;
-use std::fs::File;
-use std::io::Write;
-
-// ...
-
-pub fn guardar_laberinto_en_archivo(laberinto: &Vec<Vec<String>>, ruta: &str) -> Result<(), std::io::Error> {
-    let mut file = File::create(ruta)?;
-    
-    for row in laberinto {
-        for cell in row {
-            file.write_all(cell.as_bytes())?;
-            file.write_all(b" ")?;
-        }
-        file.write_all(b"\n")?; // Salto de línea para separar las filas
-    }
-
-    Ok(())
-}
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum TypeBomba {
@@ -58,6 +40,7 @@ pub struct GameData {
     pub pared_intercepta: bool,
     pub roca_intercepta: bool,
 }
+
 fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize, bomba: &Bomba) {
     if objeto.starts_with("D") {
         println!("¡Encontraste un desvío en la posición ({}, {})!", nueva_x, y);
@@ -123,6 +106,7 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
         show_maze(  game_data, nueva_x, y);
     }
 }
+
 fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData{
     for dx in 1..=alcance {
         let mut nueva_x = x.wrapping_add(1 * dx);
@@ -149,8 +133,6 @@ fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize, alc
     game_data.roca_intercepta = false;
     game_data
 }
-
-// Haz lo mismo para las otras funciones de recorrido (hacia arriba, derecha e izquierda).
 
 fn recorrer_hacia_arriba<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData {
     for dx in 1..=alcance {
@@ -229,6 +211,7 @@ fn recorrer_hacia_izquierda<'a>(game_data: &'a mut GameData, x: usize, y: usize,
     game_data.roca_intercepta = false;
     game_data // Devuelve el game_data actualizado
 }
+
 fn validate_maze(game_data:GameData, coordinate_x: usize, coordinate_y: usize)-> Result<(), Box<dyn Error>>{
     let vector_bombas = game_data.bombas;
     let vector_enemigos = game_data.enemies;
