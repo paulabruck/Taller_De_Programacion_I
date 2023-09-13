@@ -1,12 +1,7 @@
-mod file;
-mod bomberman;
+pub mod file;
+pub mod bomberman;
 mod object;
-use std::fs::File;
 use std::error::Error;
-use std::io::{self, BufRead};
-use std::path::Path;
-use std::fmt::Display;
-use std::fs::read_to_string;
 use file::read_file;
 use file::guardar_laberinto_en_archivo;
 use std::env;
@@ -58,7 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(error);
         }
     };    
-    let final_maze = match show_maze( &mut game_data, coordinate_x, coordinate_y){
+    let _final_maze = match show_maze( &mut game_data, coordinate_x, coordinate_y){
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
 

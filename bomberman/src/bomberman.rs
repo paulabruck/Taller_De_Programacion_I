@@ -1,5 +1,4 @@
 use std::error::Error;
-use std::fmt::Display;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum TypeBomba {
@@ -109,11 +108,11 @@ fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y
 
 fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData{
     for dx in 1..=alcance {
-        let mut nueva_x = x.wrapping_add(1 * dx);
+        let nueva_x = x.wrapping_add(1 * dx);
         
         //println!("dx ({})!", dx);
         //println!("alxance ({})!", alcance);
-        let mut iteraciones_restantes = alcance - dx;
+        let iteraciones_restantes = alcance - dx;
         //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
@@ -136,10 +135,10 @@ fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize, alc
 
 fn recorrer_hacia_arriba<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData {
     for dx in 1..=alcance {
-        let mut nueva_x = x.wrapping_sub(1 * dx);
+        let nueva_x = x.wrapping_sub(1 * dx);
        //println!("dx ({})!", dx);
         //println!("alxance ({})!", alcance);
-        let mut iteraciones_restantes = alcance - dx;
+        let iteraciones_restantes = alcance - dx;
         //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
@@ -165,7 +164,7 @@ fn recorrer_hacia_derecha<'a>(game_data: &'a mut GameData, x: usize, y: usize, a
         let nueva_y = y.wrapping_add(1 * dx);
         //println!("dx ({})!", dx);
         //println!("alxance ({})!", alcance);
-        let mut iteraciones_restantes = alcance - dx;
+        let iteraciones_restantes = alcance - dx;
         //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
@@ -191,7 +190,7 @@ fn recorrer_hacia_izquierda<'a>(game_data: &'a mut GameData, x: usize, y: usize,
         let nueva_y = y.wrapping_sub(1 * dx);
         //println!("dx ({})!", dx);
         //println!("alxance ({})!", alcance);
-        let mut iteraciones_restantes = alcance - dx;
+        let iteraciones_restantes = alcance - dx;
         //println!("¡iteraciones ({})!", iteraciones_restantes);
         // Verificar si la nueva posición está dentro de los límites del laberinto
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
