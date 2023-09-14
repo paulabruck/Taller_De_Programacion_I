@@ -182,6 +182,33 @@ mod tests {
         // Verifica que la posición (1, 1) ya no esté en la lista de bombas
         assert_eq!(game_data.bombas.iter().any(|b| b.position == (1, 1)), false);
     }
+    #[test]
+    fn test_validate_maze() {
+        // Creamos un conjunto de datos de prueba
+        let bombas = vec![Bomba {
+            position: (1, 1),
+            typee: TypeBomba::Normal,
+            reach: 2,
+        }];
+        let enemies = vec![Enemigo {
+            position: (1, 1),
+            lives: 3,
+            bombas_recibidas: None,
+        }];
+        let game_data = create_game_data(
+            bombas.clone(),
+            enemies.clone(),
+            Vec::new(), // Otras detours vacías
+            vec![vec!["_".to_string(); 5]; 5], // Laberinto de 5x5 lleno de "_"
+            false,
+            false,
+        );
 
-    // Agrega más pruebas según sea necesario
+        // Validamos el laberinto
+        let result = game_data.validate_maze(1, 1);
+
+        // Debería ser válido porque hay una bomba y un enemigo válidos en las coordenadas especificadas
+        assert!(result.is_ok());
+    }
+
 }
