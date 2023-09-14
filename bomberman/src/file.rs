@@ -10,7 +10,10 @@ pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
     Ok(file_contents)
 }
 
-pub fn guardar_laberinto_en_archivo(laberinto: &Vec<Vec<String>>, ruta: &str) -> Result<(), std::io::Error> {
+pub fn guardar_laberinto_en_archivo(
+    laberinto: &Vec<Vec<String>>,
+    ruta: &str,
+) -> Result<(), std::io::Error> {
     let mut file = File::create(ruta)?;
     for row in laberinto {
         for cell in row {

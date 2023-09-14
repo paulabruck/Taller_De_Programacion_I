@@ -1,6 +1,6 @@
-pub mod bomberman;
-pub mod file;
 pub mod bomba;
-pub mod enemigo;
+pub mod bomberman;
 pub mod desvio;
+pub mod enemigo;
+pub mod file;
 pub mod game_data;

@@ -1,8 +1,8 @@
 // Importa las funciones y estructuras que deseas probar
 
-use bomberman::file::{read_file, guardar_laberinto_en_archivo};
+use bomberman::file::{guardar_laberinto_en_archivo, read_file};
 //use crate::bomberman::{create_objects, show_maze};
-use bomberman::bomberman::{create_objects};
+use bomberman::bomberman::create_objects;
 
 #[test]
 fn test_read_file() {
@@ -29,7 +29,7 @@ fn test_guardar_laberinto_en_archivo() {
 //     // Crea un laberinto de prueba
 //     let mut file_contents = read_file("maze.txt"); // Reemplaza con tu contenido de prueba
 //     let mut maze: Vec<Vec<String>> = Vec::new();
-    
+
 //     for line in file_contents.lines() {
 //         let row: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
 //         maze.push(row);
@@ -38,4 +38,3 @@ fn test_guardar_laberinto_en_archivo() {
 //     let mut result = create_objects(&mut file_contents, 0, 0, maze); // Pasa tus argumentos de prueba
 //     assert_eq!(result)
 // }
-

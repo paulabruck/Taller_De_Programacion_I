@@ -1,4 +1,3 @@
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TypeBomba {
     Normal,
@@ -6,9 +5,9 @@ pub enum TypeBomba {
 }
 #[derive(Clone)]
 pub struct Bomba {
-   pub position: (usize, usize),
-   pub typee: TypeBomba,
-   pub reach: usize,
+    pub position: (usize, usize),
+    pub typee: TypeBomba,
+    pub reach: usize,
 }
 
 pub fn process_bomba(

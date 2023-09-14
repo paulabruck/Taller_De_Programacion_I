@@ -1,9 +1,9 @@
+use crate::bomba::Bomba;
+use crate::bomba::TypeBomba;
 use crate::bomberman::recorrer_hacia_abajo;
 use crate::bomberman::recorrer_hacia_arriba;
 use crate::bomberman::recorrer_hacia_derecha;
 use crate::bomberman::recorrer_hacia_izquierda;
-use crate::bomba::TypeBomba;
-use crate::bomba::Bomba;
 use crate::game_data::GameData;
 
 #[derive(Debug, Clone)]
@@ -14,7 +14,7 @@ enum TypeDetour {
     Down,
 }
 #[derive(Clone)]
-pub struct Detour{
+pub struct Detour {
     position: (usize, usize),
     direction: TypeDetour,
 }
@@ -41,19 +41,53 @@ pub fn process_detour(
     }
 }
 
-pub fn handle_desvio(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize, bomba: &Bomba){
-
-    if objeto == "DU"{
-        recorrer_hacia_arriba( game_data,nueva_x, y,iteraciones_restantes, typee.clone(), &bomba);
+pub fn handle_desvio(
+    game_data: &mut GameData,
+    objeto: &String,
+    nueva_x: usize,
+    y: usize,
+    typee: TypeBomba,
+    iteraciones_restantes: usize,
+    bomba: &Bomba,
+) {
+    if objeto == "DU" {
+        recorrer_hacia_arriba(
+            game_data,
+            nueva_x,
+            y,
+            iteraciones_restantes,
+            typee.clone(),
+            &bomba,
+        );
     }
-    if objeto == "DD"{
-        recorrer_hacia_abajo( game_data,nueva_x, y,iteraciones_restantes, typee.clone(), &bomba);
+    if objeto == "DD" {
+        recorrer_hacia_abajo(
+            game_data,
+            nueva_x,
+            y,
+            iteraciones_restantes,
+            typee.clone(),
+            &bomba,
+        );
     }
-    if objeto == "DR"{
-        recorrer_hacia_derecha( game_data,nueva_x, y,iteraciones_restantes, typee.clone(), &bomba);
+    if objeto == "DR" {
+        recorrer_hacia_derecha(
+            game_data,
+            nueva_x,
+            y,
+            iteraciones_restantes,
+            typee.clone(),
+            &bomba,
+        );
     }
-    if objeto == "DL"{
-        recorrer_hacia_izquierda( game_data,nueva_x, y,iteraciones_restantes, typee.clone(), &bomba);
+    if objeto == "DL" {
+        recorrer_hacia_izquierda(
+            game_data,
+            nueva_x,
+            y,
+            iteraciones_restantes,
+            typee.clone(),
+            &bomba,
+        );
     }
-
 }

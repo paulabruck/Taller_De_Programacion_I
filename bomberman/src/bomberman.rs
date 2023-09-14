@@ -1,49 +1,93 @@
-use std::error::Error;
+use crate::bomba::process_bomba;
 use crate::bomba::Bomba;
 use crate::bomba::TypeBomba;
-use crate::bomba::process_bomba;
-use crate::enemigo::Enemigo;
-use crate::enemigo::process_enemy;
-use crate::desvio::Detour;
-use crate::desvio::process_detour;
-use crate::game_data::GameData;
-use crate::game_data::create_game_data;
 use crate::desvio::handle_desvio;
+use crate::desvio::process_detour;
+use crate::desvio::Detour;
 use crate::enemigo::handle_enemigo;
+use crate::enemigo::process_enemy;
+use crate::enemigo::Enemigo;
+use crate::game_data::create_game_data;
+use crate::game_data::GameData;
+use std::error::Error;
 
-fn chequear_objetos(game_data: &mut GameData, objeto: &String, nueva_x: usize, y: usize,typee: TypeBomba, iteraciones_restantes: usize, bomba: &Bomba) {
+fn chequear_objetos(
+    game_data: &mut GameData,
+    objeto: &String,
+    nueva_x: usize,
+    y: usize,
+    typee: TypeBomba,
+    iteraciones_restantes: usize,
+    bomba: &Bomba,
+) {
     if objeto.starts_with("D") {
-        handle_desvio(game_data,objeto,nueva_x, y, typee.clone(), iteraciones_restantes, &bomba)
+        handle_desvio(
+            game_data,
+            objeto,
+            nueva_x,
+            y,
+            typee.clone(),
+            iteraciones_restantes,
+            &bomba,
+        )
     }
     if objeto.starts_with("F") {
-        handle_enemigo(game_data,objeto,nueva_x, y, typee.clone(), iteraciones_restantes, &bomba)
+        handle_enemigo(
+            game_data,
+            objeto,
+            nueva_x,
+            y,
+            typee.clone(),
+            iteraciones_restantes,
+            &bomba,
+        )
     }
-    if objeto == "R" {
-        if typee == TypeBomba::Normal {
-            game_data.roca_intercepta = true;
-        }
+    if objeto == "R" && typee == TypeBomba::Normal {
+        game_data.roca_intercepta = true;
     }
     if objeto == "W" {
         game_data.pared_intercepta = true;
-        
     }
     if objeto.starts_with("B") || objeto.starts_with("S") {
-        show_maze( game_data, nueva_x, y);
+        show_maze(game_data, nueva_x, y);
     }
 }
-pub fn chequeos_recorridos<'a>(nueva_x: usize,game_data: &'a mut GameData, y: usize, typee: TypeBomba, bomba: &'a Bomba, iteraciones_restantes:usize){
-            let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
-            let mut game_data_clone = game_data.clone();
-            chequear_objetos(&mut game_data_clone, objeto, nueva_x, y, typee, iteraciones_restantes, &bomba);
-            *game_data = game_data_clone;        
+
+pub fn chequeos_recorridos<'a>(
+    nueva_x: usize,
+    game_data: &'a mut GameData,
+    y: usize,
+    typee: TypeBomba,
+    bomba: &'a Bomba,
+    iteraciones_restantes: usize,
+) {
+    let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
+    let mut game_data_clone = game_data.clone();
+    chequear_objetos(
+        &mut game_data_clone,
+        objeto,
+        nueva_x,
+        y,
+        typee,
+        iteraciones_restantes,
+        &bomba,
+    );
+    *game_data = game_data_clone;
 }
 
-pub fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData{
+pub fn recorrer_hacia_abajo<'a>(
+    game_data: &'a mut GameData,
+    x: usize,
+    y: usize,
+    alcance: usize,
+    typee: TypeBomba,
+    bomba: &'a Bomba,
+) -> &'a mut GameData {
     for dx in 1..=alcance {
         let nueva_x = x.wrapping_add(1 * dx);
         let iteraciones_restantes = alcance - dx;
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-            chequeos_recorridos(nueva_x,  game_data, y, typee , bomba, iteraciones_restantes);
+            chequeos_recorridos(nueva_x, game_data, y, typee, bomba, iteraciones_restantes);
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
@@ -57,12 +101,19 @@ pub fn recorrer_hacia_abajo<'a>(game_data: &'a mut GameData, x: usize, y: usize,
     game_data
 }
 
-pub fn recorrer_hacia_arriba<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize,typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData {
+pub fn recorrer_hacia_arriba<'a>(
+    game_data: &'a mut GameData,
+    x: usize,
+    y: usize,
+    alcance: usize,
+    typee: TypeBomba,
+    bomba: &'a Bomba,
+) -> &'a mut GameData {
     for dx in 1..=alcance {
         let nueva_x = x.wrapping_sub(1 * dx);
         let iteraciones_restantes = alcance - dx;
         if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-            chequeos_recorridos(nueva_x,  game_data, y, typee , bomba, iteraciones_restantes);
+            chequeos_recorridos(nueva_x, game_data, y, typee, bomba, iteraciones_restantes);
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
@@ -76,12 +127,19 @@ pub fn recorrer_hacia_arriba<'a>(game_data: &'a mut GameData, x: usize, y: usize
     game_data // Devuelve el game_data actualizado
 }
 
-pub fn recorrer_hacia_derecha<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData {
+pub fn recorrer_hacia_derecha<'a>(
+    game_data: &'a mut GameData,
+    x: usize,
+    y: usize,
+    alcance: usize,
+    typee: TypeBomba,
+    bomba: &'a Bomba,
+) -> &'a mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_add(1 * dx);
         let iteraciones_restantes = alcance - dx;
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
-            chequeos_recorridos(x,  game_data, nueva_y, typee , bomba, iteraciones_restantes);
+            chequeos_recorridos(x, game_data, nueva_y, typee, bomba, iteraciones_restantes);
             if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
@@ -95,13 +153,20 @@ pub fn recorrer_hacia_derecha<'a>(game_data: &'a mut GameData, x: usize, y: usiz
     game_data // Devuelve el game_data actualizado
 }
 
-pub fn recorrer_hacia_izquierda<'a>(game_data: &'a mut GameData, x: usize, y: usize, alcance: usize, typee: TypeBomba, bomba: &'a Bomba) -> &'a mut GameData {
+pub fn recorrer_hacia_izquierda<'a>(
+    game_data: &'a mut GameData,
+    x: usize,
+    y: usize,
+    alcance: usize,
+    typee: TypeBomba,
+    bomba: &'a Bomba,
+) -> &'a mut GameData {
     for dx in 1..=alcance {
         let nueva_y = y.wrapping_sub(1 * dx);
         let iteraciones_restantes = alcance - dx;
         if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
-            chequeos_recorridos(x,  game_data, nueva_y, typee , bomba, iteraciones_restantes);
-            if game_data.pared_intercepta == true || game_data.roca_intercepta == true{
+            chequeos_recorridos(x, game_data, nueva_y, typee, bomba, iteraciones_restantes);
+            if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                 break;
             }
         } else {
@@ -156,7 +221,7 @@ pub fn create_objects(
         false, // Pared intercepta inicialmente en falso
         false, // Roca intercepta inicialmente en falso
     );
-    
+
     if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
         eprintln!("Error: {}", error);
     }
@@ -179,19 +244,26 @@ fn process_character(
     }
 }
 
-pub fn show_maze(mut game_data: &mut GameData, coordinate_x: usize, coordinate_y: usize) -> Result<(), Box<dyn Error>>{
-    let mut alcance = 0;
-    let mut tipo_bomba = TypeBomba::Normal;
-    let mut posicion_bomba= (0,0);
-    if let Some(bomba) = game_data.find_bomba(coordinate_x, coordinate_y) { 
-        alcance = bomba.reach;
-        tipo_bomba = bomba.typee;
-        posicion_bomba = bomba.position;
+pub fn show_maze(
+    game_data: &mut GameData,
+    coordinate_x: usize,
+    coordinate_y: usize,
+) -> Result<(), Box<dyn Error>> {
+    
+    if let Some(bomba) = game_data.find_bomba(coordinate_x, coordinate_y) {
+        let alcance = bomba.reach;
+        let tipo_bomba = bomba.typee;
         let bomba_copiada = bomba.clone();
 
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
         game_data.remove_bomba(coordinate_x, coordinate_y);
-        game_data.apply_bomba_effect(coordinate_x, coordinate_y, alcance, tipo_bomba.clone(), &bomba_copiada);        
+        game_data.apply_bomba_effect(
+            coordinate_x,
+            coordinate_y,
+            alcance,
+            tipo_bomba.clone(),
+            &bomba_copiada,
+        );
     }
     print_laberinto(&game_data.laberinto);
     Ok(())
