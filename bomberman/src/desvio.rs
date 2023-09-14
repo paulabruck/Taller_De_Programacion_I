@@ -1,9 +1,5 @@
 use crate::bomba::Bomba;
 use crate::bomba::TypeBomba;
-use crate::bomberman::recorrer_hacia_abajo;
-use crate::bomberman::recorrer_hacia_arriba;
-use crate::bomberman::recorrer_hacia_derecha;
-use crate::bomberman::recorrer_hacia_izquierda;
 use crate::game_data::GameData;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -15,8 +11,8 @@ pub enum TypeDetour {
 }
 #[derive(Clone, PartialEq, Debug)]
 pub struct Detour {
-    position: (usize, usize),
-    direction: TypeDetour,
+    pub position: (usize, usize),
+    pub direction: TypeDetour,
 }
 
 impl Detour {
@@ -28,8 +24,6 @@ impl Detour {
         }
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

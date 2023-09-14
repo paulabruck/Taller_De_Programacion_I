@@ -4,3 +4,4 @@ pub mod desvio;
 pub mod enemigo;
 pub mod file;
 pub mod game_data;
+pub mod utils;

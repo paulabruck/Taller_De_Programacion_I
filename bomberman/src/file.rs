@@ -6,8 +6,21 @@ use std::io::Write;
 pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
     // Ahora 'file_contents' contiene el contenido completo del archivo como una cadena
     let file_contents = read_to_string(input_file)?;
+    if file_contents.is_empty() {
+        return Err("El archivo está vacío".into());
+    }
     println!("Contenido del archivo:\n{}", file_contents);
     Ok(file_contents)
+}
+
+pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
+    let mut maze: Vec<Vec<String>> = Vec::new();
+
+    for line in file_contents.lines() {
+        let row: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
+        maze.push(row);
+    }
+    maze
 }
 
 pub fn guardar_laberinto_en_archivo(

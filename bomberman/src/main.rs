@@ -1,12 +1,14 @@
-use bomberman::bomberman::{create_objects, print_laberinto, detonar_bomba};
-use bomberman::file::{guardar_laberinto_en_archivo, read_file};
+use bomberman::bomberman::{create_objects, detonar_bomba};
+use bomberman::file::{guardar_laberinto_en_archivo, read_file, parse_maze};
+use bomberman::game_data::GameData;
+use bomberman::utils::errores::{error_path_invalido, error_objetos_invalidos };
 use std::env;
 use std::error::Error;
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     let arguments: Vec<String> = env::args().collect();
     if arguments.len() != 5 {
-        return Err("Cantidad incorrecta de argumentos".into());
+        return Err(Box::new(error_path_invalido()));
     }
 
     let input_file = arguments[1].clone();
@@ -17,15 +19,7 @@ fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     Ok((input_file, output_directory, coordinate_x, coordinate_y))
 }
 
-fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
-    let mut maze: Vec<Vec<String>> = Vec::new();
 
-    for line in file_contents.lines() {
-        let row: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
-        maze.push(row);
-    }
-    maze
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let (input_file, output_directory, coordinate_x, coordinate_y) = parse_arguments()?;
@@ -42,8 +36,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(error) => {
-            eprintln!("Error: {}", error);
-            return Err(error);
+            return Err(Box::new(error_objetos_invalidos()));
         }
     };
 
@@ -57,6 +50,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         Err(err) => eprintln!("Error al guardar el laberinto: {}", err),
     }
 
-    print_laberinto(&game_data.laberinto);
+    GameData::print_laberinto(&game_data.laberinto);
     Ok(())
 }
