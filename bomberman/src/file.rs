@@ -25,11 +25,11 @@ pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
 }
 
 pub fn save_maze_in_file(
-    laberinto: &Vec<Vec<String>>,
+    maze: &Vec<Vec<String>>,
     ruta: &str,
 ) -> Result<(), std::io::Error> {
     let mut file = File::create(ruta)?;
-    for row in laberinto {
+    for row in maze {
         for cell in row {
             file.write_all(cell.as_bytes())?;
             file.write_all(b" ")?;

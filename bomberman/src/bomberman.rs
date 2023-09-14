@@ -91,9 +91,9 @@ fn create_game_data_internal(
         bombs,
         enemies,
         detours,
-        laberinto: maze,
-        pared_intercepta: false,
-        roca_intercepta: false,
+        maze: maze,
+        wall_interceps: false,
+        rock_interceps: false,
     }
 }
 
@@ -149,44 +149,44 @@ pub fn create_objects(
     Ok(game_data)
 }
 
-pub fn chequear_objetos(
+pub fn check_objects(
     game_data: &mut GameData,
-    objeto: &String,
-    nueva_x: usize,
+    object: &String,
+    new_x: usize,
     y: usize,
     typee: TypeBomb,
-    iteraciones_restantes: usize,
+    interations_pending: usize,
     bomb: &Bomb,
 ) {
-    if objeto.starts_with("D") {
-        GameData::handle_desvio(game_data, objeto, nueva_x, y, typee.clone(), iteraciones_restantes, &bomb)
+    if object.starts_with("D") {
+        GameData::handle_detour(game_data, object, new_x, y, typee.clone(), interations_pending, &bomb)
     }
-    if objeto.starts_with("F") {
-        GameData:: handle_enemigo(
+    if object.starts_with("F") {
+        GameData:: handle_enemy(
             game_data,
-            objeto,
-            nueva_x,
+            object,
+            new_x,
             y,
             typee.clone(),
-            iteraciones_restantes,
+            interations_pending,
             &bomb,
         )
     }
-    if objeto == "R" && typee == TypeBomb::Normal {
-        GameData:: handle_roca(
+    if object == "R" && typee == TypeBomb::Normal {
+        GameData:: handle_rock(
             game_data,
         )
     }
-    if objeto == "W" {
-        GameData:: handle_pared(
+    if object == "W" {
+        GameData:: handle_wall(
             game_data,
         )
     }
-    if objeto.starts_with("B") || objeto.starts_with("S") {
+    if object.starts_with("B") || object.starts_with("S") {
         GameData:: handle_bomb(
             game_data,
-            objeto,
-            nueva_x,
+            object,
+            new_x,
             y,
         )
     }
@@ -197,18 +197,18 @@ pub fn detonar_bomb(
     coordinate_y: usize,
 ) -> Result<(), Box<dyn Error>> {
     if let Some(bomb) = game_data.find_bomb(coordinate_x, coordinate_y) {
-        let alcance = bomb.reach;
+        let reach = bomb.reach;
         let tipo_bomb = bomb.typee;
-        let bomb_copiada = bomb.clone();
+        let copy_bomb = bomb.clone();
 
-        game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
+        game_data.maze[coordinate_x][coordinate_y] = "_".to_string();
         game_data.remove_bomb(coordinate_x, coordinate_y);
         game_data.apply_bomb_effect(
             coordinate_x,
             coordinate_y,
-            alcance,
+            reach,
             tipo_bomb.clone(),
-            &bomb_copiada,
+            &copy_bomb,
         );
     }
     Ok(())

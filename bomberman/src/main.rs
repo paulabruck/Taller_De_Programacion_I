@@ -45,11 +45,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         Err(error) => return Err(error),
     };
 
-    match save_maze_in_file(&game_data.laberinto, &output_directory) {
-        Ok(_) => println!("El laberinto se ha guardado exitosamente."),
-        Err(err) => eprintln!("Error al guardar el laberinto: {}", err),
+    match save_maze_in_file(&game_data.maze, &output_directory) {
+        Ok(_) => println!("El maze se ha guardado exitosamente."),
+        Err(err) => eprintln!("Error al guardar el maze: {}", err),
     }
 
-    GameData::print_laberinto(&game_data.laberinto);
+    GameData::print_maze(&game_data.maze);
     Ok(())
 }
