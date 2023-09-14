@@ -1,12 +1,7 @@
-pub mod file;
-pub mod bomberman;
-mod object;
 use std::error::Error;
-use file::read_file;
-use file::guardar_laberinto_en_archivo;
 use std::env;
-use crate::bomberman::create_objects;
-use crate::bomberman::show_maze;
+use bomberman::file::{read_file, guardar_laberinto_en_archivo};
+use bomberman::bomberman::{create_objects, show_maze};
 
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
