@@ -45,6 +45,7 @@ pub fn create_objects(
             );
         }
     }
+    println!("Error: {:?}", bombas[0].position);
     let game_data = create_game_data(
         bombas.clone(),
         enemies.clone(),
@@ -276,3 +277,5 @@ pub fn print_laberinto(laberinto: &Vec<Vec<String>>) {
         println!(); // Salto de línea para separar las filas
     }
 }
+
+
