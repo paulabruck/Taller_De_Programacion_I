@@ -7,8 +7,10 @@ use bomberman::bomberman::create_objects;
 #[test]
 fn test_read_file() {
     // Prueba la función read_file
-    let result = read_file("maze.txt"); // Reemplaza "test_input.txt" con tu archivo de prueba
-    assert!(result.is_ok()); // Verifica si la lectura del archivo tuvo éxito
+    let mut file_contents = match read_file("./src/maze.txt") {
+        Ok(resultado) => resultado,
+        Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
+    };
 }
 
 #[test]

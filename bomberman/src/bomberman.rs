@@ -11,6 +11,71 @@ use crate::game_data::create_game_data;
 use crate::game_data::GameData;
 use std::error::Error;
 
+pub fn create_objects(
+    file_contents: &mut str,
+    coordinate_x: usize,
+    coordinate_y: usize,
+    maze: Vec<Vec<String>>,
+) -> Result<GameData, Box<dyn Error>> {
+    let mut position: (usize, usize) = (0, 0);
+    let mut bombas: Vec<Bomba> = Vec::new();
+    let mut enemies: Vec<Enemigo> = Vec::new();
+    let mut detours: Vec<Detour> = Vec::new();
+    let mut chars = file_contents.chars();
+
+    while let Some(character) = chars.next() {
+        if character == '\n' {
+            position.1 = 0;
+            position.0 += 1;
+        }
+        if character == ' ' {
+            position.1 += 1;
+        }
+        if character == '\n' || character == '_' {
+            continue;
+        };
+        if character != ' ' {
+            process_character(
+                character,
+                &mut chars,
+                &mut position,
+                &mut bombas,
+                &mut enemies,
+                &mut detours,
+            );
+        }
+    }
+    let game_data = create_game_data(
+        bombas.clone(),
+        enemies.clone(),
+        detours.clone(),
+        maze.clone(),
+        false, // Pared intercepta inicialmente en falso
+        false, // Roca intercepta inicialmente en falso
+    );
+
+    if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
+        eprintln!("Error: {}", error);
+    }
+    Ok(game_data)
+}
+
+fn process_character(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    bombas: &mut Vec<Bomba>,
+    enemies: &mut Vec<Enemigo>,
+    detours: &mut Vec<Detour>,
+) {
+    match character {
+        'B' | 'S' => process_bomba(character, chars, position, bombas),
+        'F' => process_enemy(character, chars, position, enemies),
+        'D' => process_detour(chars, position, detours),
+        _ => {}
+    }
+}
+
 fn chequear_objetos(
     game_data: &mut GameData,
     objeto: &String,
@@ -179,77 +244,11 @@ pub fn recorrer_hacia_izquierda<'a>(
     game_data // Devuelve el game_data actualizado
 }
 
-pub fn create_objects(
-    file_contents: &mut str,
-    coordinate_x: usize,
-    coordinate_y: usize,
-    maze: Vec<Vec<String>>,
-) -> Result<GameData, Box<dyn Error>> {
-    let mut position: (usize, usize) = (0, 0);
-    let mut bombas: Vec<Bomba> = Vec::new();
-    let mut enemies: Vec<Enemigo> = Vec::new();
-    let mut detours: Vec<Detour> = Vec::new();
-    let mut chars = file_contents.chars();
-
-    while let Some(character) = chars.next() {
-        if character == '\n' {
-            position.1 = 0;
-            position.0 += 1;
-        }
-        if character == ' ' {
-            position.1 += 1;
-        }
-        if character == '\n' || character == '_' {
-            continue;
-        };
-        if character != ' ' {
-            process_character(
-                character,
-                &mut chars,
-                &mut position,
-                &mut bombas,
-                &mut enemies,
-                &mut detours,
-            );
-        }
-    }
-    let game_data = create_game_data(
-        bombas.clone(),
-        enemies.clone(),
-        detours.clone(),
-        maze.clone(),
-        false, // Pared intercepta inicialmente en falso
-        false, // Roca intercepta inicialmente en falso
-    );
-
-    if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
-        eprintln!("Error: {}", error);
-    }
-    Ok(game_data)
-}
-
-fn process_character(
-    character: char,
-    chars: &mut std::str::Chars,
-    position: &mut (usize, usize),
-    bombas: &mut Vec<Bomba>,
-    enemies: &mut Vec<Enemigo>,
-    detours: &mut Vec<Detour>,
-) {
-    match character {
-        'B' | 'S' => process_bomba(character, chars, position, bombas),
-        'F' => process_enemy(character, chars, position, enemies),
-        'D' => process_detour(character, chars, position, detours),
-        _ => {}
-    }
-}
-
 pub fn show_maze(
     game_data: &mut GameData,
     coordinate_x: usize,
     coordinate_y: usize,
 ) -> Result<(), Box<dyn Error>> {
-    
     if let Some(bomba) = game_data.find_bomba(coordinate_x, coordinate_y) {
         let alcance = bomba.reach;
         let tipo_bomba = bomba.typee;
@@ -265,11 +264,10 @@ pub fn show_maze(
             &bomba_copiada,
         );
     }
-    print_laberinto(&game_data.laberinto);
     Ok(())
 }
 
-fn print_laberinto(laberinto: &Vec<Vec<String>>) {
+pub fn print_laberinto(laberinto: &Vec<Vec<String>>) {
     for row in laberinto {
         for cell in row {
             print!("{}", cell);

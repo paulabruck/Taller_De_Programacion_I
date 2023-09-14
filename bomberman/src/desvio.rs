@@ -20,7 +20,6 @@ pub struct Detour {
 }
 
 pub fn process_detour(
-    character: char,
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
     detours: &mut Vec<Detour>,
