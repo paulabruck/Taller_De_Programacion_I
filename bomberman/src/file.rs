@@ -2,12 +2,13 @@ use std::error::Error;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
+use crate::utils::errores::error_empty_file;
 
 pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
     // Ahora 'file_contents' contiene el contenido completo del archivo como una cadena
     let file_contents = read_to_string(input_file)?;
     if file_contents.is_empty() {
-        return Err("El archivo está vacío".into());
+        return Err(Box::new(error_empty_file()));
     }
     println!("Contenido del archivo:\n{}", file_contents);
     Ok(file_contents)
@@ -23,7 +24,7 @@ pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
     maze
 }
 
-pub fn guardar_laberinto_en_archivo(
+pub fn save_maze_in_file(
     laberinto: &Vec<Vec<String>>,
     ruta: &str,
 ) -> Result<(), std::io::Error> {

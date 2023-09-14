@@ -1,16 +1,16 @@
 use crate::utils::errores::error_objetos_invalidos;
-use crate::bomberman::detonar_bomba;
+use crate::bomberman::detonar_bomb;
 use crate::bomberman::chequear_objetos;
-use crate::desvio::Detour;
-use crate::enemigo::Enemigo;
+use crate::detour::Detour;
+use crate::enemy::Enemy;
 use std::error::Error;
-use crate::desvio::TypeDetour;
-use crate::bomba::{Bomba, TypeBomba};
+use crate::detour::TypeDetour;
+use crate::bomb::{Bomb, TypeBomb};
 
 #[derive(Clone)]
 pub struct GameData {
-    pub bombas: Vec<Bomba>,
-    pub enemies: Vec<Enemigo>,
+    pub bombs: Vec<Bomb>,
+    pub enemies: Vec<Enemy>,
     pub detours: Vec<Detour>,
     pub laberinto: Vec<Vec<String>>,
     pub pared_intercepta: bool,
@@ -18,15 +18,15 @@ pub struct GameData {
 }
 impl GameData {
         pub fn new(
-            bombas: Vec<Bomba>,
-            enemies: Vec<Enemigo>,
+            bombs: Vec<Bomb>,
+            enemies: Vec<Enemy>,
             detours: Vec<Detour>,
             maze: Vec<Vec<String>>,
             pared_intercepta: bool,
             roca_intercepta: bool,
         ) -> Self {
             GameData {
-                bombas,
+                bombs,
                 enemies,
                 detours,
                 laberinto: maze,
@@ -35,21 +35,21 @@ impl GameData {
             }
         }
         
-        pub fn find_bomba(&mut self, coordinate_x: usize, coordinate_y: usize) -> Option<&mut Bomba> {
-            self.bombas
+        pub fn find_bomb(&mut self, coordinate_x: usize, coordinate_y: usize) -> Option<&mut Bomb> {
+            self.bombs
             .iter_mut()
             .find(|b| b.position == (coordinate_x, coordinate_y))
         }
-        pub fn remove_bomba(&mut self, coordinate_x: usize, coordinate_y: usize) {
-            self.bombas
+        pub fn remove_bomb(&mut self, coordinate_x: usize, coordinate_y: usize) {
+            self.bombs
             .retain(|b| b.position != (coordinate_x, coordinate_y));
         }
         pub fn chequeos_recorridos<'a>(
             nueva_x: usize,
             game_data: &'a mut GameData,
             y: usize,
-            typee: TypeBomba,
-            bomba: &'a Bomba,
+            typee: TypeBomb,
+            bomb: &'a Bomb,
             iteraciones_restantes: usize,
         ) {
             let objeto = &game_data.laberinto[nueva_x][y]; // Obtener el objeto en la posición
@@ -61,7 +61,7 @@ impl GameData {
                 y,
                 typee,
                 iteraciones_restantes,
-                &bomba,
+                &bomb,
             );
             *game_data = game_data_clone;
         }
@@ -70,14 +70,14 @@ impl GameData {
             x: usize,
             y: usize,
             alcance: usize,
-            typee: TypeBomba,
-            bomba: &'a Bomba,
+            typee: TypeBomb,
+            bomb: &'a Bomb,
         ) -> &'a mut GameData {
             for dx in 1..=alcance {
                 let nueva_x = x.wrapping_add(1 * dx);
                 let iteraciones_restantes = alcance - dx;
                 if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-                    Self::chequeos_recorridos(nueva_x, game_data, y, typee, bomba, iteraciones_restantes);
+                    Self::chequeos_recorridos(nueva_x, game_data, y, typee, bomb, iteraciones_restantes);
                     if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                         break;
                     }
@@ -90,45 +90,45 @@ impl GameData {
             game_data.roca_intercepta = false;
             game_data
         }
-    pub fn apply_bomba_effect(
+    pub fn apply_bomb_effect(
         &mut self,
         coordinate_x: usize,
         coordinate_y: usize,
         alcance: usize,
-        tipo_bomba: TypeBomba,
-        bomba_copiada: &Bomba,
+        tipo_bomb: TypeBomb,
+        bomb_copiada: &Bomb,
     ) {
         Self::recorrer_hacia_abajo(
             self,
             coordinate_x,
             coordinate_y,
             alcance,
-            tipo_bomba.clone(),
-            &bomba_copiada,
+            tipo_bomb.clone(),
+            &bomb_copiada,
         );
         Self::recorrer_hacia_arriba(
             self,
             coordinate_x,
             coordinate_y,
             alcance,
-            tipo_bomba.clone(),
-            &bomba_copiada,
+            tipo_bomb.clone(),
+            &bomb_copiada,
         );
         Self::recorrer_hacia_derecha(
             self,
             coordinate_x,
             coordinate_y,
             alcance,
-            tipo_bomba.clone(),
-            &bomba_copiada,
+            tipo_bomb.clone(),
+            &bomb_copiada,
         );
         Self::recorrer_hacia_izquierda(
             self,
             coordinate_x,
             coordinate_y,
             alcance,
-            tipo_bomba.clone(),
-            &bomba_copiada,
+            tipo_bomb.clone(),
+            &bomb_copiada,
         );
     }
     pub fn validate_maze(
@@ -136,8 +136,8 @@ impl GameData {
         coordinate_x: usize,
         coordinate_y: usize,
     ) -> Result<(), Box<dyn Error>> {
-        let bomba_encontrada = self
-            .bombas
+        let bomb_encontrada = self
+            .bombs
             .iter()
             .any(|b| b.position == (coordinate_x, coordinate_y) && b.reach > 0);
             let vidas_validas = self
@@ -145,7 +145,7 @@ impl GameData {
             .iter()
             .any(|enemy| enemy.lives <= 3 && enemy.lives > 0);
             
-            if bomba_encontrada && vidas_validas {
+            if bomb_encontrada && vidas_validas {
                 Ok(())
             } else {
                 return Err(Box::new(error_objetos_invalidos()));              
@@ -157,9 +157,9 @@ impl GameData {
         objeto: &String,
         nueva_x: usize,
         y: usize,
-        typee: TypeBomba,
+        typee: TypeBomb,
         iteraciones_restantes: usize,
-        bomba: &Bomba,
+        bomb: &Bomb,
     ) {
         if objeto == "DU" {
             Self::recorrer_hacia_arriba(
@@ -168,7 +168,7 @@ impl GameData {
                 y,
                 iteraciones_restantes,
                 typee.clone(),
-                &bomba,
+                &bomb,
             );
         }
         if objeto == "DD" {
@@ -178,7 +178,7 @@ impl GameData {
                 y,
                 iteraciones_restantes,
                 typee.clone(),
-                &bomba,
+                &bomb,
             );
         }
         if objeto == "DR" {
@@ -188,7 +188,7 @@ impl GameData {
                 y,
                 iteraciones_restantes,
                 typee.clone(),
-                &bomba,
+                &bomb,
             );
         }
         if objeto == "DL" {
@@ -198,7 +198,7 @@ impl GameData {
                 y,
                 iteraciones_restantes,
                 typee.clone(),
-                &bomba,
+                &bomb,
             );
         }
     }
@@ -208,9 +208,9 @@ impl GameData {
         objeto: &String,
         nueva_x: usize,
         y: usize,
-        typee: TypeBomba,
+        typee: TypeBomb,
         iteraciones_restantes: usize,
-        bomba: &Bomba,
+        bomb: &Bomb,
     ) {
         if let Some(enemy) = game_data
             .enemies
@@ -218,19 +218,19 @@ impl GameData {
             .find(|enemy| enemy.position == (nueva_x, y))
         {
             if enemy.lives > 0 {
-                if let Some(ref mut bombas_recibidas) = &mut enemy.bombas_recibidas {
-                    if !bombas_recibidas
+                if let Some(ref mut received_bombs) = &mut enemy.received_bombs {
+                    if !received_bombs
                         .iter()
-                        .any(|b| b.position == bomba.position)
+                        .any(|b| b.position == bomb.position)
                     {
-                        bombas_recibidas.push(bomba.clone());
+                        received_bombs.push(bomb.clone());
                     } else {
                         enemy.lives += 1;
                     }
                 } else {
-                    let mut new_bombas_recibidas = Vec::new();
-                    new_bombas_recibidas.push(bomba.clone());
-                    enemy.bombas_recibidas = Some(new_bombas_recibidas);
+                    let mut new_received_bombs = Vec::new();
+                    new_received_bombs.push(bomb.clone());
+                    enemy.received_bombs = Some(new_received_bombs);
                 }
                 enemy.lives -= 1;
                 let lives_str = enemy.lives.to_string();
@@ -250,11 +250,11 @@ impl GameData {
     pub fn handle_pared(game_data: &mut GameData ){
         game_data.pared_intercepta = true;
     }
-    pub fn handle_bomba( game_data: &mut GameData,
+    pub fn handle_bomb( game_data: &mut GameData,
         objeto: &String,
         nueva_x: usize,
         y: usize){
-        detonar_bomba(game_data, nueva_x, y);
+        detonar_bomb(game_data, nueva_x, y);
     }
     
     pub fn recorrer_hacia_arriba<'a>(
@@ -262,14 +262,14 @@ impl GameData {
         x: usize,
         y: usize,
         alcance: usize,
-        typee: TypeBomba,
-        bomba: &'a Bomba,
+        typee: TypeBomb,
+        bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=alcance {
             let nueva_x = x.wrapping_sub(1 * dx);
             let iteraciones_restantes = alcance - dx;
             if nueva_x < game_data.laberinto.len() && y < game_data.laberinto[nueva_x].len() {
-                Self::chequeos_recorridos(nueva_x, game_data, y, typee, bomba, iteraciones_restantes);
+                Self::chequeos_recorridos(nueva_x, game_data, y, typee, bomb, iteraciones_restantes);
                 if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                     break;
                 }
@@ -288,14 +288,14 @@ impl GameData {
         x: usize,
         y: usize,
         alcance: usize,
-        typee: TypeBomba,
-        bomba: &'a Bomba,
+        typee: TypeBomb,
+        bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=alcance {
             let nueva_y = y.wrapping_add(1 * dx);
             let iteraciones_restantes = alcance - dx;
             if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
-                Self::chequeos_recorridos(x, game_data, nueva_y, typee, bomba, iteraciones_restantes);
+                Self::chequeos_recorridos(x, game_data, nueva_y, typee, bomb, iteraciones_restantes);
                 if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                     break;
                 }
@@ -314,14 +314,14 @@ impl GameData {
         x: usize,
         y: usize,
         alcance: usize,
-        typee: TypeBomba,
-        bomba: &'a Bomba,
+        typee: TypeBomb,
+        bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=alcance {
             let nueva_y = y.wrapping_sub(1 * dx);
             let iteraciones_restantes = alcance - dx;
             if x < game_data.laberinto.len() && nueva_y < game_data.laberinto[x].len() {
-                Self::chequeos_recorridos(x, game_data, nueva_y, typee, bomba, iteraciones_restantes);
+                Self::chequeos_recorridos(x, game_data, nueva_y, typee, bomb, iteraciones_restantes);
                 if game_data.pared_intercepta == true || game_data.roca_intercepta == true {
                     break;
                 }
@@ -356,14 +356,14 @@ mod tests {
     #[test]
     fn test_create_game_data() {
         // Definir datos de prueba
-        let bombas = vec![
-            Bomba::new((1, 2), TypeBomba::Normal, 3),
-            Bomba::new((3, 4), TypeBomba::Traspaso, 2),
+        let bombs = vec![
+            Bomb::new((1, 2), TypeBomb::Normal, 3),
+            Bomb::new((3, 4), TypeBomb::Traspaso, 2),
         ];
 
         let enemies = vec![
-            Enemigo::new((5, 6), 4),
-            Enemigo::new((7, 8), 2),
+            Enemy::new((5, 6), 4),
+            Enemy::new((7, 8), 2),
         ];
 
         let detours = vec![
@@ -376,7 +376,7 @@ mod tests {
             vec!["W".to_string(), "D".to_string()],
         ];
         let game_data = GameData::new(
-            bombas.clone(),
+            bombs.clone(),
             enemies.clone(),
             detours.clone(),
             maze.clone(),
@@ -386,7 +386,7 @@ mod tests {
        
 
         // Verificar que los datos creados sean iguales a los datos de prueba
-        assert_eq!(game_data.bombas, bombas);
+        assert_eq!(game_data.bombs, bombs);
         assert_eq!(game_data.enemies, enemies);
         assert_eq!(game_data.detours, detours);
         assert_eq!(game_data.laberinto, maze);
@@ -397,18 +397,18 @@ mod tests {
 
     // Escribe tus pruebas unitarias aquí
     #[test]
-    fn test_find_bomba() {
+    fn test_find_bomb() {
         // Crea un juego de datos de ejemplo
         let mut game_data = GameData {
-            bombas: vec![
-                Bomba {
+            bombs: vec![
+                Bomb {
                     position: (0, 0),
-                    typee: TypeBomba::Normal,
+                    typee: TypeBomb::Normal,
                     reach: 1,
                 },
-                Bomba {
+                Bomb {
                     position: (1, 1),
-                    typee: TypeBomba::Traspaso,
+                    typee: TypeBomb::Traspaso,
                     reach: 2,
                 },
             ],
@@ -419,29 +419,29 @@ mod tests {
             roca_intercepta: false,
         };
 
-        // Prueba la función `find_bomba`
-        assert_eq!(game_data.find_bomba(0, 0).is_some(), true);
-        assert_eq!(game_data.find_bomba(1, 1).is_some(), true);
-        assert_eq!(game_data.find_bomba(2, 2).is_some(), false);
+        // Prueba la función `find_bomb`
+        assert_eq!(game_data.find_bomb(0, 0).is_some(), true);
+        assert_eq!(game_data.find_bomb(1, 1).is_some(), true);
+        assert_eq!(game_data.find_bomb(2, 2).is_some(), false);
     }
     #[test]
-    fn test_remove_bomba() {
-        // Crea un juego de datos de ejemplo con bombas
+    fn test_remove_bomb() {
+        // Crea un juego de datos de ejemplo con bombs
         let mut game_data = GameData {
-            bombas: vec![
-                Bomba {
+            bombs: vec![
+                Bomb {
                     position: (0, 0),
-                    typee: TypeBomba::Normal,
+                    typee: TypeBomb::Normal,
                     reach: 1,
                 },
-                Bomba {
+                Bomb {
                     position: (1, 1),
-                    typee: TypeBomba::Traspaso,
+                    typee: TypeBomb::Traspaso,
                     reach: 2,
                 },
-                Bomba {
+                Bomb {
                     position: (2, 2),
-                    typee: TypeBomba::Normal,
+                    typee: TypeBomb::Normal,
                     reach: 3,
                 },
             ],
@@ -452,33 +452,33 @@ mod tests {
             roca_intercepta: false,
         };
 
-        // Verifica que haya tres bombas inicialmente
-        assert_eq!(game_data.bombas.len(), 3);
+        // Verifica que haya tres bombs inicialmente
+        assert_eq!(game_data.bombs.len(), 3);
 
-        // Elimina una bomba
-        game_data.remove_bomba(1, 1);
+        // Elimina una bomb
+        game_data.remove_bomb(1, 1);
 
-        // Verifica que la bomba se haya eliminado
-        assert_eq!(game_data.bombas.len(), 2);
+        // Verifica que la bomb se haya eliminado
+        assert_eq!(game_data.bombs.len(), 2);
 
-        // Verifica que la posición (1, 1) ya no esté en la lista de bombas
-        assert_eq!(game_data.bombas.iter().any(|b| b.position == (1, 1)), false);
+        // Verifica que la posición (1, 1) ya no esté en la lista de bombs
+        assert_eq!(game_data.bombs.iter().any(|b| b.position == (1, 1)), false);
     }
     #[test]
     fn test_validate_maze() {
         // Creamos un conjunto de datos de prueba
-        let bombas = vec![Bomba {
+        let bombs = vec![Bomb {
             position: (1, 1),
-            typee: TypeBomba::Normal,
+            typee: TypeBomb::Normal,
             reach: 2,
         }];
-        let enemies = vec![Enemigo {
+        let enemies = vec![Enemy {
             position: (1, 1),
             lives: 3,
-            bombas_recibidas: None,
+            received_bombs: None,
         }];
         let game_data = GameData::new(
-            bombas.clone(),
+            bombs.clone(),
             enemies.clone(),
             Vec::new(), // Otras detours vacías
             vec![vec!["_".to_string(); 5]; 5], // Laberinto de 5x5 lleno de "_"
@@ -489,17 +489,17 @@ mod tests {
         // Validamos el laberinto
         let result = game_data.validate_maze(1, 1);
 
-        // Debería ser válido porque hay una bomba y un enemigo válidos en las coordenadas especificadas
+        // Debería ser válido porque hay una bomb y un enemy válidos en las coordenadas especificadas
         assert!(result.is_ok());
     }
     // #[test]
-    // fn test_apply_bomba_effect() {
-    //     // Crea un juego de datos de ejemplo con bombas y un laberinto vacío
+    // fn test_apply_bomb_effect() {
+    //     // Crea un juego de datos de ejemplo con bombs y un laberinto vacío
     //     let mut game_data = GameData {
-    //         bombas: vec![
-    //             Bomba {
+    //         bombs: vec![
+    //             Bomb {
     //                 position: (1, 1),
-    //                 typee: TypeBomba::Normal,
+    //                 typee: TypeBomb::Normal,
     //                 reach: 1,
     //             },
     //         ],
@@ -513,11 +513,11 @@ mod tests {
     //         roca_intercepta: false,
     //     };
     
-    //     // Clonar la bomba para evitar el problema de referencias mutables e inmutables
-    //     let bomba_copiada = game_data.bombas[0].clone();
+    //     // Clonar la bomb para evitar el problema de referencias mutables e inmutables
+    //     let bomb_copiada = game_data.bombs[0].clone();
     //     GameData::print_laberinto( &game_data.laberinto);
-    //     // Aplica el efecto de la bomba y verifica que la celda afectada tenga "_"
-    //     game_data.apply_bomba_effect(1, 1, 1, TypeBomba::Normal, &bomba_copiada);
+    //     // Aplica el efecto de la bomb y verifica que la celda afectada tenga "_"
+    //     game_data.apply_bomb_effect(1, 1, 1, TypeBomb::Normal, &bomb_copiada);
     //     assert_eq!(game_data.laberinto[1][1], "_");
     // }
 
@@ -525,7 +525,7 @@ mod tests {
     // fn test_handle_desvio() {
     //     // Crea un juego de datos de ejemplo con un laberinto vacío
     //     let mut game_data = GameData {
-    //         bombas: vec![],
+    //         bombs: vec![],
     //         enemies: vec![],
     //         detours: vec![],
     //         laberinto: vec![vec!["_".to_string(); 3]; 3],
@@ -538,17 +538,17 @@ mod tests {
     //         position: (0, 1),
     //         direction: TypeDetour::Up,
     //     });
-    //     GameData::handle_desvio(&mut game_data,&"DU".to_string(), 0, 1, TypeBomba::Normal, 2, &Bomba {
+    //     GameData::handle_desvio(&mut game_data,&"DU".to_string(), 0, 1, TypeBomb::Normal, 2, &Bomb {
     //         position: (0, 1),
-    //         typee: TypeBomba::Normal,
+    //         typee: TypeBomb::Normal,
     //         reach: 2,
     //         });
     //     assert_eq!(game_data.laberinto[0][1], "_");
 
     //     // Cambia el tipo de desvío y verifica que afecte al recorrido en otra dirección
     //     game_data.detours[0].direction = TypeDetour::Down;
-    //     GameData::handle_desvio(&mut game_data,&"DD".to_string(), 1, 0, TypeBomba::Normal, 2, &Bomba {            position: (0, 1),
-    //                      typee: TypeBomba::Normal,
+    //     GameData::handle_desvio(&mut game_data,&"DD".to_string(), 1, 0, TypeBomb::Normal, 2, &Bomb {            position: (0, 1),
+    //                      typee: TypeBomb::Normal,
     //                      reach: 2,
     //                      });
                 

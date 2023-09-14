@@ -1,31 +1,31 @@
-use crate::bomba::Bomba;
-use crate::bomba::TypeBomba;
-use crate::desvio::Detour;
-use crate::desvio::TypeDetour;
-use crate::enemigo::Enemigo;
+use crate::bomb::Bomb;
+use crate::bomb::TypeBomb;
+use crate::detour::Detour;
+use crate::detour::TypeDetour;
+use crate::enemy::Enemy;
 use crate::game_data::GameData;
 use std::error::Error;
 use crate::utils::errores::error_objeto_invalido;
 
-pub fn process_bomba(
+pub fn process_bomb(
     character: char,
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
-    bombas: &mut Vec<Bomba>,
+    bombs: &mut Vec<Bomb>,
 ) {
     if let Some(next_char) = chars.next() {
         if let Some(digit) = next_char.to_digit(10) {
             let value_as_usize = digit as usize;
             if character == 'B' {
-                let bomba = Bomba::new((position.0, position.1), TypeBomba::Normal, value_as_usize);
-                bombas.push(bomba);
+                let bomb = Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize);
+                bombs.push(bomb);
             } else {
-                let bomba = Bomba::new(
+                let bomb = Bomb::new(
                     (position.0, position.1),
-                    TypeBomba::Traspaso,
+                    TypeBomb::Traspaso,
                     value_as_usize,
                 );
-                bombas.push(bomba);
+                bombs.push(bomb);
             }
         }
     }
@@ -35,12 +35,12 @@ pub fn process_enemy(
     character: char,
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
-    enemies: &mut Vec<Enemigo>,
+    enemies: &mut Vec<Enemy>,
 ) {
     if let Some(next_char) = chars.next() {
         if let Some(digit) = next_char.to_digit(10) {
             let value_as_usize = digit as usize;
-            let enemy = Enemigo::new((position.0, position.1), value_as_usize);
+            let enemy = Enemy::new((position.0, position.1), value_as_usize);
             enemies.push(enemy);
         }
     }
@@ -68,12 +68,12 @@ fn process_character(
     character: char,
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
-    bombas: &mut Vec<Bomba>,
-    enemies: &mut Vec<Enemigo>,
+    bombs: &mut Vec<Bomb>,
+    enemies: &mut Vec<Enemy>,
     detours: &mut Vec<Detour>,
 )-> Result<(), Box<dyn Error>>{
     match character {
-        'B' | 'S' => Ok(process_bomba(character, chars, position, bombas)),
+        'B' | 'S' => Ok(process_bomb(character, chars, position, bombs)),
         'F' => Ok(process_enemy(character, chars, position, enemies)),
         'D' =>  Ok(process_detour(chars, position, detours)),
         'W'|'R'=> Ok(()),
@@ -82,13 +82,13 @@ fn process_character(
 }
 
 fn create_game_data_internal(
-    bombas: Vec<Bomba>,
-    enemies: Vec<Enemigo>,
+    bombs: Vec<Bomb>,
+    enemies: Vec<Enemy>,
     detours: Vec<Detour>,
     maze: Vec<Vec<String>>,
 ) -> GameData {
     GameData {
-        bombas,
+        bombs,
         enemies,
         detours,
         laberinto: maze,
@@ -104,8 +104,8 @@ pub fn create_objects(
     maze: Vec<Vec<String>>,
 ) -> Result<GameData, Box<dyn Error>> {
     let mut position: (usize, usize) = (0, 0);
-    let mut bombas: Vec<Bomba> = Vec::new();
-    let mut enemies: Vec<Enemigo> = Vec::new();
+    let mut bombs: Vec<Bomb> = Vec::new();
+    let mut enemies: Vec<Enemy> = Vec::new();
     let mut detours: Vec<Detour> = Vec::new();
     let mut chars = file_contents.chars();
 
@@ -125,7 +125,7 @@ pub fn create_objects(
                 character,
                 &mut chars,
                 &mut position,
-                &mut bombas,
+                &mut bombs,
                 &mut enemies,
                 &mut detours,
             ){
@@ -136,7 +136,7 @@ pub fn create_objects(
     }
 
     let game_data = create_game_data_internal(
-        bombas.clone(),
+        bombs.clone(),
         enemies.clone(),
         detours.clone(),
         maze.clone(),
@@ -154,12 +154,12 @@ pub fn chequear_objetos(
     objeto: &String,
     nueva_x: usize,
     y: usize,
-    typee: TypeBomba,
+    typee: TypeBomb,
     iteraciones_restantes: usize,
-    bomba: &Bomba,
+    bomb: &Bomb,
 ) {
     if objeto.starts_with("D") {
-        GameData::handle_desvio(game_data, objeto, nueva_x, y, typee.clone(), iteraciones_restantes, &bomba)
+        GameData::handle_desvio(game_data, objeto, nueva_x, y, typee.clone(), iteraciones_restantes, &bomb)
     }
     if objeto.starts_with("F") {
         GameData:: handle_enemigo(
@@ -169,10 +169,10 @@ pub fn chequear_objetos(
             y,
             typee.clone(),
             iteraciones_restantes,
-            &bomba,
+            &bomb,
         )
     }
-    if objeto == "R" && typee == TypeBomba::Normal {
+    if objeto == "R" && typee == TypeBomb::Normal {
         GameData:: handle_roca(
             game_data,
         )
@@ -183,7 +183,7 @@ pub fn chequear_objetos(
         )
     }
     if objeto.starts_with("B") || objeto.starts_with("S") {
-        GameData:: handle_bomba(
+        GameData:: handle_bomb(
             game_data,
             objeto,
             nueva_x,
@@ -191,24 +191,24 @@ pub fn chequear_objetos(
         )
     }
 }
-pub fn detonar_bomba(
+pub fn detonar_bomb(
     game_data: &mut GameData,
     coordinate_x: usize,
     coordinate_y: usize,
 ) -> Result<(), Box<dyn Error>> {
-    if let Some(bomba) = game_data.find_bomba(coordinate_x, coordinate_y) {
-        let alcance = bomba.reach;
-        let tipo_bomba = bomba.typee;
-        let bomba_copiada = bomba.clone();
+    if let Some(bomb) = game_data.find_bomb(coordinate_x, coordinate_y) {
+        let alcance = bomb.reach;
+        let tipo_bomb = bomb.typee;
+        let bomb_copiada = bomb.clone();
 
         game_data.laberinto[coordinate_x][coordinate_y] = "_".to_string();
-        game_data.remove_bomba(coordinate_x, coordinate_y);
-        game_data.apply_bomba_effect(
+        game_data.remove_bomb(coordinate_x, coordinate_y);
+        game_data.apply_bomb_effect(
             coordinate_x,
             coordinate_y,
             alcance,
-            tipo_bomba.clone(),
-            &bomba_copiada,
+            tipo_bomb.clone(),
+            &bomb_copiada,
         );
     }
     Ok(())

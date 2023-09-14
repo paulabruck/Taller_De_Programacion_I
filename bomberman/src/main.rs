@@ -1,5 +1,5 @@
-use bomberman::bomberman::{create_objects, detonar_bomba};
-use bomberman::file::{guardar_laberinto_en_archivo, read_file, parse_maze};
+use bomberman::bomberman::{create_objects, detonar_bomb};
+use bomberman::file::{save_maze_in_file, read_file, parse_maze};
 use bomberman::game_data::GameData;
 use bomberman::utils::errores::{error_path_invalido, error_objetos_invalidos };
 use std::env;
@@ -40,12 +40,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let _final_maze = match detonar_bomba(&mut game_data, coordinate_x, coordinate_y) {
+    let _final_maze = match detonar_bomb(&mut game_data, coordinate_x, coordinate_y) {
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
     };
 
-    match guardar_laberinto_en_archivo(&game_data.laberinto, &output_directory) {
+    match save_maze_in_file(&game_data.laberinto, &output_directory) {
         Ok(_) => println!("El laberinto se ha guardado exitosamente."),
         Err(err) => eprintln!("Error al guardar el laberinto: {}", err),
     }

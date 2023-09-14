@@ -5,7 +5,7 @@ pub mod errores {
     pub fn error_objetos_invalidos() -> Error {
         Error::new(
             InvalidData,
-            "[ERROR] El laberinto ",
+            "[ERROR] Los objetos son invalidos ",
         )
     }
     pub fn error_objeto_invalido() -> Error {
@@ -16,5 +16,8 @@ pub mod errores {
     }
     pub fn error_path_invalido() -> Error {
         Error::new(InvalidInput, "[ERROR] No se ingresó el path del laberinto.")
+    }
+    pub fn error_empty_file() -> Error {
+        Error::new(InvalidInput, "[ERROR] el archivo esta vacio.")
     }
 }
