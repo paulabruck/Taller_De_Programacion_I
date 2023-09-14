@@ -1,15 +1,99 @@
-use crate::bomba::process_bomba;
 use crate::bomba::Bomba;
 use crate::bomba::TypeBomba;
-use crate::desvio::handle_desvio;
-use crate::desvio::process_detour;
 use crate::desvio::Detour;
-use crate::enemigo::handle_enemigo;
-use crate::enemigo::process_enemy;
+use crate::desvio::TypeDetour;
 use crate::enemigo::Enemigo;
-use crate::game_data::create_game_data;
 use crate::game_data::GameData;
 use std::error::Error;
+
+pub fn process_bomba(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    bombas: &mut Vec<Bomba>,
+) {
+    if let Some(next_char) = chars.next() {
+        if let Some(digit) = next_char.to_digit(10) {
+            let value_as_usize = digit as usize;
+            if character == 'B' {
+                let bomba = Bomba::new((position.0, position.1), TypeBomba::Normal, value_as_usize);
+                bombas.push(bomba);
+            } else {
+                let bomba = Bomba::new(
+                    (position.0, position.1),
+                    TypeBomba::Traspaso,
+                    value_as_usize,
+                );
+                bombas.push(bomba);
+            }
+        }
+    }
+}
+
+pub fn process_enemy(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    enemies: &mut Vec<Enemigo>,
+) {
+    if let Some(next_char) = chars.next() {
+        if let Some(digit) = next_char.to_digit(10) {
+            let value_as_usize = digit as usize;
+            let enemy = Enemigo::new((position.0, position.1), value_as_usize);
+            enemies.push(enemy);
+        }
+    }
+}
+
+pub fn process_detour(
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    detours: &mut Vec<Detour>,
+) {
+    if let Some(next_char) = chars.next() {
+        let direction = match next_char {
+            'R' => TypeDetour::Right,
+            'L' => TypeDetour::Left,
+            'U' => TypeDetour::Up,
+            'D' => TypeDetour::Down,
+            _ => TypeDetour::Left, // Definir un valor predeterminado apropiado
+        };
+        let detour = Detour::new((position.0, position.1), direction);
+        detours.push(detour);
+    }
+}
+
+fn process_character(
+    character: char,
+    chars: &mut std::str::Chars,
+    position: &mut (usize, usize),
+    bombas: &mut Vec<Bomba>,
+    enemies: &mut Vec<Enemigo>,
+    detours: &mut Vec<Detour>,
+) {
+    match character {
+        'B' | 'S' => process_bomba(character, chars, position, bombas),
+        'F' => process_enemy(character, chars, position, enemies),
+        'D' => process_detour(chars, position, detours),
+        _ => {}
+    }
+}
+
+fn create_game_data_internal(
+    bombas: Vec<Bomba>,
+    enemies: Vec<Enemigo>,
+    detours: Vec<Detour>,
+    maze: Vec<Vec<String>>,
+) -> GameData {
+    GameData {
+        bombas,
+        enemies,
+        detours,
+        laberinto: maze,
+        pared_intercepta: false,
+        roca_intercepta: false,
+    }
+}
 
 pub fn create_objects(
     file_contents: &mut str,
@@ -45,36 +129,18 @@ pub fn create_objects(
             );
         }
     }
-    println!("Error: {:?}", bombas[0].position);
-    let game_data = create_game_data(
+
+    let game_data = create_game_data_internal(
         bombas.clone(),
         enemies.clone(),
         detours.clone(),
         maze.clone(),
-        false, // Pared intercepta inicialmente en falso
-        false, // Roca intercepta inicialmente en falso
     );
 
     if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
         eprintln!("Error: {}", error);
     }
     Ok(game_data)
-}
-
-fn process_character(
-    character: char,
-    chars: &mut std::str::Chars,
-    position: &mut (usize, usize),
-    bombas: &mut Vec<Bomba>,
-    enemies: &mut Vec<Enemigo>,
-    detours: &mut Vec<Detour>,
-) {
-    match character {
-        'B' | 'S' => process_bomba(character, chars, position, bombas),
-        'F' => process_enemy(character, chars, position, enemies),
-        'D' => process_detour(chars, position, detours),
-        _ => {}
-    }
 }
 
 fn chequear_objetos(
@@ -87,18 +153,10 @@ fn chequear_objetos(
     bomba: &Bomba,
 ) {
     if objeto.starts_with("D") {
-        handle_desvio(
-            game_data,
-            objeto,
-            nueva_x,
-            y,
-            typee.clone(),
-            iteraciones_restantes,
-            &bomba,
-        )
+        GameData::handle_desvio(game_data, objeto, nueva_x, y, typee.clone(), iteraciones_restantes, &bomba)
     }
     if objeto.starts_with("F") {
-        handle_enemigo(
+        GameData:: handle_enemigo(
             game_data,
             objeto,
             nueva_x,
@@ -109,13 +167,17 @@ fn chequear_objetos(
         )
     }
     if objeto == "R" && typee == TypeBomba::Normal {
-        game_data.roca_intercepta = true;
+        GameData:: handle_roca(
+            game_data,
+        )
     }
     if objeto == "W" {
-        game_data.pared_intercepta = true;
+        GameData:: handle_pared(
+            game_data,
+        )
     }
     if objeto.starts_with("B") || objeto.starts_with("S") {
-        show_maze(game_data, nueva_x, y);
+        detonar_bomba(game_data, nueva_x, y);
     }
 }
 
@@ -245,7 +307,7 @@ pub fn recorrer_hacia_izquierda<'a>(
     game_data // Devuelve el game_data actualizado
 }
 
-pub fn show_maze(
+pub fn detonar_bomba(
     game_data: &mut GameData,
     coordinate_x: usize,
     coordinate_y: usize,
@@ -277,5 +339,3 @@ pub fn print_laberinto(laberinto: &Vec<Vec<String>>) {
         println!(); // Salto de línea para separar las filas
     }
 }
-
-

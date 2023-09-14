@@ -1,10 +1,9 @@
-
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TypeBomba {
     Normal,
     Traspaso,
 }
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Bomba {
     pub position: (usize, usize),
     pub typee: TypeBomba,
@@ -21,28 +20,6 @@ impl Bomba {
         }
     }
 }
-
-pub fn process_bomba(
-    character: char,
-    chars: &mut std::str::Chars,
-    position: &mut (usize, usize),
-    bombas: &mut Vec<Bomba>,
-) {
-    if let Some(next_char) = chars.next() {
-        if let Some(digit) = next_char.to_digit(10) {
-            let value_as_usize = digit as usize;
-            if character == 'B'{
-                let bomba = Bomba::new((position.0, position.1), TypeBomba::Normal, value_as_usize);
-                bombas.push(bomba);
-
-            }else {
-                let bomba = Bomba::new((position.0, position.1), TypeBomba::Traspaso, value_as_usize);
-                bombas.push(bomba);
-            }
-        }
-    }
-}
-
 
 // Pruebas unitarias
 #[cfg(test)]
@@ -64,5 +41,4 @@ mod tests {
         assert_eq!(bomba.typee, TypeBomba::Traspaso);
         assert_eq!(bomba.reach, 5);
     }
-
 }

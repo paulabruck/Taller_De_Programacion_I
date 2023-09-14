@@ -1,4 +1,4 @@
-use bomberman::bomberman::{create_objects, print_laberinto, show_maze};
+use bomberman::bomberman::{create_objects, print_laberinto, detonar_bomba};
 use bomberman::file::{guardar_laberinto_en_archivo, read_file};
 use std::env;
 use std::error::Error;
@@ -38,6 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     };
 
     let maze = parse_maze(&file_contents);
+
     let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(error) => {
@@ -45,7 +46,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(error);
         }
     };
-    let _final_maze = match show_maze(&mut game_data, coordinate_x, coordinate_y) {
+
+    let _final_maze = match detonar_bomba(&mut game_data, coordinate_x, coordinate_y) {
         Ok(resultado) => resultado,
         Err(error) => return Err(error),
     };

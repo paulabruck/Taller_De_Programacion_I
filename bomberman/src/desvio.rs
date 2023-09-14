@@ -6,87 +6,55 @@ use crate::bomberman::recorrer_hacia_derecha;
 use crate::bomberman::recorrer_hacia_izquierda;
 use crate::game_data::GameData;
 
-#[derive(Debug, Clone)]
-enum TypeDetour {
+#[derive(Debug, Clone, PartialEq)]
+pub enum TypeDetour {
     Left,
     Right,
     Up,
     Down,
 }
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct Detour {
     position: (usize, usize),
     direction: TypeDetour,
 }
 
-pub fn process_detour(
-    chars: &mut std::str::Chars,
-    position: &mut (usize, usize),
-    detours: &mut Vec<Detour>,
-) {
-    if let Some(next_char) = chars.next() {
-        let direction = match next_char {
-            'R' => TypeDetour::Right,
-            'L' => TypeDetour::Left,
-            'U' => TypeDetour::Up,
-            'D' => TypeDetour::Down,
-            _ => TypeDetour::Left, // Definir un valor predeterminado apropiado
-        };
-        let detour = Detour {
-            position: (position.0, position.1),
+impl Detour {
+    // Constructor para crear una nueva instancia de Detour
+    pub fn new(position: (usize, usize), direction: TypeDetour) -> Self {
+        Detour {
+            position,
             direction,
-        };
-        detours.push(detour);
+        }
     }
 }
 
-pub fn handle_desvio(
-    game_data: &mut GameData,
-    objeto: &String,
-    nueva_x: usize,
-    y: usize,
-    typee: TypeBomba,
-    iteraciones_restantes: usize,
-    bomba: &Bomba,
-) {
-    if objeto == "DU" {
-        recorrer_hacia_arriba(
-            game_data,
-            nueva_x,
-            y,
-            iteraciones_restantes,
-            typee.clone(),
-            &bomba,
-        );
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::bomberman::*;
+
+    // Define tus pruebas aquí
+    #[test]
+    fn test_detour_creation() {
+        let detour = Detour::new((1, 2), TypeDetour::Right);
+        assert_eq!(detour.position, (1, 2));
+        assert_eq!(detour.direction, TypeDetour::Right);
     }
-    if objeto == "DD" {
-        recorrer_hacia_abajo(
-            game_data,
-            nueva_x,
-            y,
-            iteraciones_restantes,
-            typee.clone(),
-            &bomba,
-        );
+
+    #[test]
+    fn test_process_detour() {
+        let mut chars = "DR".chars();
+        let mut position = (0, 0);
+        let mut detours = Vec::new();
+
+        process_detour(&mut chars, &mut position, &mut detours);
+
+        assert_eq!(detours.len(), 1);
+        assert_eq!(detours[0].position, (0, 0));
+       
     }
-    if objeto == "DR" {
-        recorrer_hacia_derecha(
-            game_data,
-            nueva_x,
-            y,
-            iteraciones_restantes,
-            typee.clone(),
-            &bomba,
-        );
-    }
-    if objeto == "DL" {
-        recorrer_hacia_izquierda(
-            game_data,
-            nueva_x,
-            y,
-            iteraciones_restantes,
-            typee.clone(),
-            &bomba,
-        );
-    }
+
 }

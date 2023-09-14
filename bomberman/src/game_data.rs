@@ -5,7 +5,7 @@ use crate::bomberman::recorrer_hacia_izquierda;
 use crate::desvio::Detour;
 use crate::enemigo::Enemigo;
 use std::error::Error;
-// Importa las partes que deseas probar
+use crate::desvio::TypeDetour;
 use crate::bomba::{Bomba, TypeBomba};
 
 #[derive(Clone)]
@@ -18,6 +18,24 @@ pub struct GameData {
     pub roca_intercepta: bool,
 }
 impl GameData {
+        pub fn new(
+            bombas: Vec<Bomba>,
+            enemies: Vec<Enemigo>,
+            detours: Vec<Detour>,
+            maze: Vec<Vec<String>>,
+            pared_intercepta: bool,
+            roca_intercepta: bool,
+        ) -> Self {
+            GameData {
+                bombas,
+                enemies,
+                detours,
+                laberinto: maze,
+                pared_intercepta,
+                roca_intercepta,
+            }
+        }
+        
     pub fn find_bomba(&mut self, coordinate_x: usize, coordinate_y: usize) -> Option<&mut Bomba> {
         self.bombas
             .iter_mut()
@@ -88,30 +106,158 @@ impl GameData {
             Err("No se encontró una bomba en las coordenadas especificadas o las vidas de los enemigos no son válidas.".into())
         }
     }
-}
-pub fn create_game_data(
-    bombas: Vec<Bomba>,
-    enemies: Vec<Enemigo>,
-    detours: Vec<Detour>,
-    maze: Vec<Vec<String>>,
-    pared_intercepta: bool,
-    roca_intercepta: bool,
-) -> GameData {
-    GameData {
-        bombas,
-        enemies,
-        detours,
-        laberinto: maze,
-        pared_intercepta,
-        roca_intercepta,
+
+    pub fn handle_desvio(
+        game_data: &mut GameData,
+        objeto: &String,
+        nueva_x: usize,
+        y: usize,
+        typee: TypeBomba,
+        iteraciones_restantes: usize,
+        bomba: &Bomba,
+    ) {
+        if objeto == "DU" {
+            recorrer_hacia_arriba(
+                game_data,
+                nueva_x,
+                y,
+                iteraciones_restantes,
+                typee.clone(),
+                &bomba,
+            );
+        }
+        if objeto == "DD" {
+            recorrer_hacia_abajo(
+                game_data,
+                nueva_x,
+                y,
+                iteraciones_restantes,
+                typee.clone(),
+                &bomba,
+            );
+        }
+        if objeto == "DR" {
+            recorrer_hacia_derecha(
+                game_data,
+                nueva_x,
+                y,
+                iteraciones_restantes,
+                typee.clone(),
+                &bomba,
+            );
+        }
+        if objeto == "DL" {
+            recorrer_hacia_izquierda(
+                game_data,
+                nueva_x,
+                y,
+                iteraciones_restantes,
+                typee.clone(),
+                &bomba,
+            );
+        }
     }
+
+    pub fn handle_enemigo(
+        game_data: &mut GameData,
+        objeto: &String,
+        nueva_x: usize,
+        y: usize,
+        typee: TypeBomba,
+        iteraciones_restantes: usize,
+        bomba: &Bomba,
+    ) {
+        if let Some(enemy) = game_data
+            .enemies
+            .iter_mut()
+            .find(|enemy| enemy.position == (nueva_x, y))
+        {
+            if enemy.lives > 0 {
+                if let Some(ref mut bombas_recibidas) = &mut enemy.bombas_recibidas {
+                    if !bombas_recibidas
+                        .iter()
+                        .any(|b| b.position == bomba.position)
+                    {
+                        bombas_recibidas.push(bomba.clone());
+                    } else {
+                        enemy.lives += 1;
+                    }
+                } else {
+                    let mut new_bombas_recibidas = Vec::new();
+                    new_bombas_recibidas.push(bomba.clone());
+                    enemy.bombas_recibidas = Some(new_bombas_recibidas);
+                }
+                enemy.lives -= 1;
+                let lives_str = enemy.lives.to_string();
+                let objeto_str = "F".to_string() + &lives_str;
+                game_data.laberinto[nueva_x][y] = objeto_str;
+            }
+            if enemy.lives == 0 {
+                game_data.laberinto[nueva_x][y] = "_".to_string();
+                game_data.enemies.retain(|b| b.position != (nueva_x, y));
+            }
+        }
+    }
+    pub fn handle_roca(game_data: &mut GameData ){
+        game_data.roca_intercepta = true;
+
+    }
+    pub fn handle_pared(game_data: &mut GameData ){
+        game_data.pared_intercepta = true;
+    }
+
+    
+
 }
+
 
 // Anota tu módulo de pruebas
 #[cfg(test)]
 mod tests {
     // Importa las partes que deseas probar en el ámbito de pruebas
     use super::*;
+
+    #[test]
+    fn test_create_game_data() {
+        // Definir datos de prueba
+        let bombas = vec![
+            Bomba::new((1, 2), TypeBomba::Normal, 3),
+            Bomba::new((3, 4), TypeBomba::Traspaso, 2),
+        ];
+
+        let enemies = vec![
+            Enemigo::new((5, 6), 4),
+            Enemigo::new((7, 8), 2),
+        ];
+
+        let detours = vec![
+            Detour::new((9, 10), TypeDetour::Right),
+            Detour::new((11, 12), TypeDetour::Left),
+        ];
+
+        let maze = vec![
+            vec!["X".to_string(), " ".to_string()],
+            vec!["W".to_string(), "D".to_string()],
+        ];
+        let game_data = GameData::new(
+            bombas.clone(),
+            enemies.clone(),
+            detours.clone(),
+            maze.clone(),
+            false,
+            false,
+        );
+       
+
+        // Verificar que los datos creados sean iguales a los datos de prueba
+        assert_eq!(game_data.bombas, bombas);
+        assert_eq!(game_data.enemies, enemies);
+        assert_eq!(game_data.detours, detours);
+        assert_eq!(game_data.laberinto, maze);
+        assert_eq!(game_data.pared_intercepta, false);
+        assert_eq!(game_data.roca_intercepta, false);
+    }
+    
 
     // Escribe tus pruebas unitarias aquí
     #[test]
@@ -195,7 +341,7 @@ mod tests {
             lives: 3,
             bombas_recibidas: None,
         }];
-        let game_data = create_game_data(
+        let game_data = GameData::new(
             bombas.clone(),
             enemies.clone(),
             Vec::new(), // Otras detours vacías
