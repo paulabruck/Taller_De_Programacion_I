@@ -1,6 +1,7 @@
 use bomberman::bomberman::{create_objects, detonar_bomba};
 use bomberman::file::{guardar_laberinto_en_archivo, parse_maze, read_file};
 
+/// Prueba la función `read_file` para asegurarse de que puede leer un archivo correctamente.
 #[test]
 fn test_read_file() {
     let mut file_contents = match read_file("./src/maze.txt") {
@@ -9,6 +10,7 @@ fn test_read_file() {
     };
 }
 
+/// Prueba la función `guardar_laberinto_en_archivo` para asegurarse de que puede guardar el laberinto en un archivo.
 #[test]
 fn test_guardar_laberinto_en_archivo() {
     // Crea un laberinto de prueba
@@ -18,10 +20,11 @@ fn test_guardar_laberinto_en_archivo() {
     ];
 
     // Prueba la función guardar_laberinto_en_archivo
-    let result = guardar_laberinto_en_archivo(&laberinto, "maze4.txt"); // Reemplaza "test_output.txt" con tu archivo de prueba
+    let result = guardar_laberinto_en_archivo(&laberinto, "maze4.txt"); 
     assert!(result.is_ok()); // Verifica si guardar el laberinto en un archivo tuvo éxito
 }
 
+/// Prueba la función `create_objects` para asegurarse de que puede crear objetos a partir de un archivo.
 #[test]
 fn test_create_objects() {
     // Crea un laberinto de prueba
@@ -37,6 +40,7 @@ fn test_create_objects() {
     };
 }
 
+/// Prueba la función `create_objects` cuando el laberinto es inválido y está vacío.
 #[test]
 fn test_create_objects_invalid_empty_maze() {
     // Crea un laberinto de prueba
@@ -51,6 +55,8 @@ fn test_create_objects_invalid_empty_maze() {
         Err(error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
 }
+
+/// Prueba la función `detonar_bomba` en una ubicación inválida.
 #[test]
 fn test_detonar_bomba_invalid_location() {
     let mut file_contents = match read_file("./src/maze2.txt") {
@@ -70,6 +76,7 @@ fn test_detonar_bomba_invalid_location() {
     assert!(result.is_err());
 }
 
+/// Prueba la función `create_objects` cuando el laberinto es inválido y contiene objetos inválidos.
 #[test]
 fn test_create_objects_invalid_maze() {
     // Crea un laberinto de prueba
@@ -85,6 +92,7 @@ fn test_create_objects_invalid_maze() {
     };
 }
 
+/// Prueba la función `detonar_bomba` en una ubicación válida.
 #[test]
 fn test_detonate_bomb() {
     // Crea un laberinto de prueba con una bomba colocada
@@ -110,6 +118,7 @@ fn test_detonate_bomb() {
     assert_eq!(game_data.bombas.len(), 0);
 }
 
+/// Prueba la interacción con enemigos cuando se detona una bomba cerca de ellos.
 #[test]
 fn test_interaction_with_enemies() {
     // Crea un laberinto de prueba con enemigos cercanos a una bomba
@@ -136,6 +145,7 @@ fn test_interaction_with_enemies() {
     assert_eq!(game_data.enemies[0].position, (4, 2));
 }
 
+/// Prueba la función `detonar_bomba` en una ubicación válida.
 #[test]
 fn test_detonar_bomba_valid_location() {
     let mut file_contents = match read_file("./src/maze.txt") {
@@ -155,7 +165,7 @@ fn test_detonar_bomba_valid_location() {
     assert!(result.is_ok());
 }
 
-// Prueba detonar una bomba en una ubicación con enemigo
+/// Prueba la función `detonar_bomba` en una ubicación con enemigo.
 #[test]
 fn test_detonar_bomba_enemy_location() {
     let mut file_contents = match read_file("./src/maze.txt") {
@@ -176,7 +186,7 @@ fn test_detonar_bomba_enemy_location() {
     assert_eq!(game_data.enemies.len(), 0);
 }
 
-// Prueba detonar una bomba en una ubicación con objetos destructibles
+/// Prueba la función `detonar_bomba` en una ubicación con objetos destructibles.
 #[test]
 fn test_detonar_bomba_objects_location() {
     let mut file_contents = match read_file("./src/maze2.txt") {
@@ -197,7 +207,7 @@ fn test_detonar_bomba_objects_location() {
     assert!(game_data.laberinto[4][0] == "_");
 }
 
-// Prueba detonar una bomba en una ubicación con desvío
+/// Prueba la función `detonar_bomba` en una ubicación con desvío.
 #[test]
 fn test_detonar_bomba_detour_location() {
     let mut file_contents = match read_file("./src/maze2.txt") {
