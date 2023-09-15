@@ -65,3 +65,22 @@ pub fn save_maze_in_file(maze: &Vec<Vec<String>>, ruta: &str) -> Result<(), std:
     }
     Ok(())
 }
+/// Escribe un mensaje de error en un archivo ubicado en la ruta especificada.
+///
+/// # Argumentos
+///
+/// - `mensaje_error`: El mensaje de error que se escribirá en el archivo.
+/// - `ruta_archivo`: La ruta del archivo en el que se escribirá el mensaje de error.
+///
+/// # Errores
+///
+/// Este método puede devolver un error si ocurren problemas al escribir en el archivo.
+///
+pub fn write_error_in_file(mensaje_error: &str, ruta_archivo: &str) -> Result<(), std::io::Error> {
+    let mut file = File::create(ruta_archivo)?;
+
+    // Escribe el mensaje de error en el archivo
+    file.write_all(mensaje_error.as_bytes())?;
+
+    Ok(())
+}

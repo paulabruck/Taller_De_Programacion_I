@@ -1,9 +1,10 @@
 use bomberman::bomberman::{create_objects, detonar_bomb};
-use bomberman::file::{parse_maze, read_file, save_maze_in_file};
+use bomberman::file::{parse_maze, read_file, save_maze_in_file, write_error_in_file};
 use bomberman::game_data::GameData;
 use bomberman::utils::errores::{error_objetos_invalidos, error_path_invalido};
 use std::env;
 use std::error::Error;
+use bomberman::utils::constantes::*;
 
 /// Parsea los argumentos de línea de comandos.
 ///
@@ -40,6 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Ok(contents) => contents,
         Err(error) => {
             eprintln!("Error al leer el archivo: {}", error);
+            write_error_in_file(ERROR_LEER_ARCHIVO,&output_directory);
             return Err(error);
         }
     };
@@ -49,19 +51,26 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(error) => {
+            write_error_in_file(ERROR_CREAR_OBJETOS,&output_directory);
             return Err(Box::new(error_objetos_invalidos()));
         }
     };
 
     let _final_maze = match detonar_bomb(&mut game_data, coordinate_x, coordinate_y) {
         Ok(resultado) => resultado,
-        Err(error) => return Err(error),
+        Err(error) => {
+            write_error_in_file(ERROR_DETONANDO_BOMBA,&output_directory);
+            return Err(error);
+        }
     };
 
     match save_maze_in_file(&game_data.maze, &output_directory) {
         Ok(_) => println!("El maze se ha guardado exitosamente."),
-        Err(err) => eprintln!("Error al guardar el maze: {}", err),
-    }
+        Err(err) =>{
+            write_error_in_file(ERROR_GUARDANDO_RESULTADO,&output_directory);
+            eprintln!("Error al guardar el maze: {}", err);
+        } 
+    };
 
     GameData::print_maze(&game_data.maze);
     Ok(())
