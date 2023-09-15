@@ -2,6 +2,7 @@ use crate::bomb::Bomb;
 use crate::bomb::TypeBomb;
 use crate::game_data::GameData;
 
+/// Enumeración que representa los posibles tipos de desvíos.
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypeDetour {
     Left,
@@ -9,14 +10,25 @@ pub enum TypeDetour {
     Up,
     Down,
 }
+
+/// Estructura que representa un desvío en el juego.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Detour {
+    /// Posición del desvío en el laberinto.
     pub position: (usize, usize),
+    /// Dirección del desvío.
     pub direction: TypeDetour,
 }
 
 impl Detour {
-    // Constructor para crear una nueva instancia de Detour
+    /// Constructor para crear una nueva instancia de `Detour`.
+    ///
+    /// # Argumentos
+    ///
+    /// - `position`: Posición del desvío en el laberinto.
+    /// - `direction`: Dirección del desvío.
+    ///
+
     pub fn new(position: (usize, usize), direction: TypeDetour) -> Self {
         Detour {
             position,
@@ -47,6 +59,5 @@ mod tests {
 
         assert_eq!(detours.len(), 1);
         assert_eq!(detours[0].position, (0, 0));
-       
     }
 }

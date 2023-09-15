@@ -4,9 +4,17 @@ use crate::detour::Detour;
 use crate::detour::TypeDetour;
 use crate::enemy::Enemy;
 use crate::game_data::GameData;
-use std::error::Error;
 use crate::utils::errores::error_objeto_invalido;
+use std::error::Error;
 
+/// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
+///
+/// # Argumentos
+///
+/// - `character`: Carácter que representa el tipo de bomba ('B' para Normal, 'S' para Traspaso).
+/// - `chars`: Referencia mutable a los caracteres restantes en la cadena.
+/// - `position`: Referencia mutable a la posición actual en el laberinto.
+/// - `bombs`: Referencia mutable al vector de bombas.
 pub fn process_bomb(
     character: char,
     chars: &mut std::str::Chars,
@@ -20,17 +28,21 @@ pub fn process_bomb(
                 let bomb = Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize);
                 bombs.push(bomb);
             } else {
-                let bomb = Bomb::new(
-                    (position.0, position.1),
-                    TypeBomb::Traspaso,
-                    value_as_usize,
-                );
+                let bomb = Bomb::new((position.0, position.1), TypeBomb::Traspaso, value_as_usize);
                 bombs.push(bomb);
             }
         }
     }
 }
 
+/// Procesa un carácter como un enemigo y agrega una instancia de `Enemy` al vector `enemies`.
+///
+/// # Argumentos
+///
+/// - `character`: Carácter que representa el tipo de enemigo.
+/// - `chars`: Referencia mutable a los caracteres restantes en la cadena.
+/// - `position`: Referencia mutable a la posición actual en el laberinto.
+/// - `enemies`: Referencia mutable al vector de enemigos.
 pub fn process_enemy(
     character: char,
     chars: &mut std::str::Chars,
@@ -46,6 +58,13 @@ pub fn process_enemy(
     }
 }
 
+/// Procesa un carácter como un desvío y agrega una instancia de `Detour` al vector `detours`.
+///
+/// # Argumentos
+///
+/// - `chars`: Referencia mutable a los caracteres restantes en la cadena.
+/// - `position`: Referencia mutable a la posición actual en el laberinto.
+/// - `detours`: Referencia mutable al vector de desvíos.
 pub fn process_detour(
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
@@ -64,6 +83,20 @@ pub fn process_detour(
     }
 }
 
+/// Procesa un carácter como un objeto en el laberinto y realiza las acciones correspondientes.
+///
+/// # Argumentos
+///
+/// - `character`: Carácter que representa el objeto.
+/// - `chars`: Referencia mutable a los caracteres restantes en la cadena.
+/// - `position`: Referencia mutable a la posición actual en el laberinto.
+/// - `bombs`: Referencia mutable al vector de bombas.
+/// - `enemies`: Referencia mutable al vector de enemigos.
+/// - `detours`: Referencia mutable al vector de desvíos.
+///
+/// # Errores
+///
+/// Devuelve un error si el carácter representa un objeto inválido en el laberinto.
 fn process_character(
     character: char,
     chars: &mut std::str::Chars,
@@ -71,16 +104,28 @@ fn process_character(
     bombs: &mut Vec<Bomb>,
     enemies: &mut Vec<Enemy>,
     detours: &mut Vec<Detour>,
-)-> Result<(), Box<dyn Error>>{
+) -> Result<(), Box<dyn Error>> {
     match character {
         'B' | 'S' => Ok(process_bomb(character, chars, position, bombs)),
         'F' => Ok(process_enemy(character, chars, position, enemies)),
-        'D' =>  Ok(process_detour(chars, position, detours)),
-        'W'|'R'=> Ok(()),
+        'D' => Ok(process_detour(chars, position, detours)),
+        'W' | 'R' => Ok(()),
         _ => Err(Box::new(error_objeto_invalido())),
     }
 }
 
+/// Crea una instancia de `GameData` internamente utilizando los vectores de objetos y el laberinto.
+///
+/// # Argumentos
+///
+/// - `bombs`: Vector de bombas.
+/// - `enemies`: Vector de enemigos.
+/// - `detours`: Vector de desvíos.
+/// - `maze`: Laberinto representado como una matriz de cadenas.
+///
+/// # Retorna
+///
+/// Una instancia de `GameData` que contiene los objetos y el laberinto.
 fn create_game_data_internal(
     bombs: Vec<Bomb>,
     enemies: Vec<Enemy>,
@@ -97,6 +142,18 @@ fn create_game_data_internal(
     }
 }
 
+/// Crea objetos (bombas, enemigos y desvíos) a partir de la cadena de contenido del archivo.
+///
+/// # Argumentos
+///
+/// - `file_contents`: Referencia mutable a la cadena de contenido del archivo.
+/// - `coordinate_x`: Coordenada X del jugador.
+/// - `coordinate_y`: Coordenada Y del jugador.
+/// - `maze`: Laberinto representado como una matriz de cadenas.
+///
+/// # Errores
+///
+/// Devuelve un error si se encuentra un objeto inválido en el laberinto.
 pub fn create_objects(
     file_contents: &mut str,
     coordinate_x: usize,
@@ -128,10 +185,9 @@ pub fn create_objects(
                 &mut bombs,
                 &mut enemies,
                 &mut detours,
-            ){
+            ) {
                 return Err(Box::new(error_objeto_invalido()));
             }
-            
         }
     }
 
@@ -149,6 +205,17 @@ pub fn create_objects(
     Ok(game_data)
 }
 
+/// Realiza las acciones correspondientes a un objeto en el laberinto.
+///
+/// # Argumentos
+///
+/// - `game_data`: Referencia mutable a los datos del juego.
+/// - `object`: Referencia a la cadena que representa el objeto.
+/// - `new_x`: Nueva coordenada X después de un desvío.
+/// - `y`: Coordenada Y actual.
+/// - `typee`: Tipo de bomba (Normal o Traspaso).
+/// - `interations_pending`: Iteraciones pendientes para objetos de tipo Traspaso.
+/// - `bomb`: Referencia a la bomba asociada al objeto.
 pub fn check_objects(
     game_data: &mut GameData,
     object: &String,
@@ -159,10 +226,18 @@ pub fn check_objects(
     bomb: &Bomb,
 ) {
     if object.starts_with("D") {
-        GameData::handle_detour(game_data, object, new_x, y, typee.clone(), interations_pending, &bomb)
+        GameData::handle_detour(
+            game_data,
+            object,
+            new_x,
+            y,
+            typee.clone(),
+            interations_pending,
+            &bomb,
+        )
     }
     if object.starts_with("F") {
-        GameData:: handle_enemy(
+        GameData::handle_enemy(
             game_data,
             object,
             new_x,
@@ -173,24 +248,27 @@ pub fn check_objects(
         )
     }
     if object == "R" && typee == TypeBomb::Normal {
-        GameData:: handle_rock(
-            game_data,
-        )
+        GameData::handle_rock(game_data)
     }
     if object == "W" {
-        GameData:: handle_wall(
-            game_data,
-        )
+        GameData::handle_wall(game_data)
     }
     if object.starts_with("B") || object.starts_with("S") {
-        GameData:: handle_bomb(
-            game_data,
-            object,
-            new_x,
-            y,
-        )
+        GameData::handle_bomb(game_data, object, new_x, y)
     }
 }
+
+/// Detona una bomba en las coordenadas especificadas en el laberinto y aplica sus efectos.
+///
+/// # Argumentos
+///
+/// - `game_data`: Referencia mutable a los datos del juego.
+/// - `coordinate_x`: Coordenada X de la bomba a detonar.
+/// - `coordinate_y`: Coordenada Y de la bomba a detonar.
+///
+/// # Errores
+///
+/// Devuelve un error si no se encuentra una bomba en las coordenadas especificadas.
 pub fn detonar_bomb(
     game_data: &mut GameData,
     coordinate_x: usize,
@@ -213,5 +291,3 @@ pub fn detonar_bomb(
     }
     Ok(())
 }
-
-

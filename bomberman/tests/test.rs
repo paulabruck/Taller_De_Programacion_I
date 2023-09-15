@@ -1,5 +1,5 @@
-use bomberman::file::{guardar_laberinto_en_archivo, read_file, parse_maze};
 use bomberman::bomberman::{create_objects, detonar_bomba};
+use bomberman::file::{guardar_laberinto_en_archivo, parse_maze, read_file};
 
 #[test]
 fn test_read_file() {
@@ -31,11 +31,10 @@ fn test_create_objects() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let mut result = match create_objects(&mut file_contents, 0, 0, maze){
+    let mut result = match create_objects(&mut file_contents, 0, 0, maze) {
         Ok(data) => data,
         Err(error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
-    
 }
 
 #[test]
@@ -47,11 +46,10 @@ fn test_create_objects_invalid_empty_maze() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let mut result = match create_objects(&mut file_contents, 0, 0, maze){
+    let mut result = match create_objects(&mut file_contents, 0, 0, maze) {
         Ok(data) => data,
         Err(error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
-    
 }
 #[test]
 fn test_detonar_bomba_invalid_location() {
@@ -81,11 +79,10 @@ fn test_create_objects_invalid_maze() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let mut result = match create_objects(&mut file_contents, 0, 0, maze){
+    let mut result = match create_objects(&mut file_contents, 0, 0, maze) {
         Ok(data) => data,
         Err(error) => return assert!(true, "Los objetos no se pudieron crear correctamente"),
     };
-    
 }
 
 #[test]
@@ -104,7 +101,7 @@ fn test_detonate_bomb() {
 
     // Detona la bomba en una posición específica
     let result = detonar_bomba(&mut game_data, 0, 0);
-    
+
     // Verifica que la detonación haya tenido éxito
     assert!(result.is_ok());
 
@@ -129,15 +126,14 @@ fn test_interaction_with_enemies() {
 
     // Detona la bomba en una posición cercana a los enemigos
     let result = detonar_bomba(&mut game_data, 4, 0);
-    
+
     // Verifica que la detonación haya tenido éxito
     assert!(result.is_ok());
 
     // Verifica que los enemigos hayan recibido daño y sus vidas se hayan actualizado correctamente
     assert_eq!(game_data.enemies.len(), 1);
     assert_eq!(game_data.enemies[0].lives, 1);
-    assert_eq!(game_data.enemies[0].position, (4,2));
-
+    assert_eq!(game_data.enemies[0].position, (4, 2));
 }
 
 #[test]
@@ -158,7 +154,6 @@ fn test_detonar_bomba_valid_location() {
     // Verifica que la detonación de la bomba tuvo éxito
     assert!(result.is_ok());
 }
-
 
 // Prueba detonar una bomba en una ubicación con enemigo
 #[test]
@@ -215,7 +210,4 @@ fn test_detonar_bomba_detour_location() {
         Ok(data) => data,
         Err(error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
-
 }
-
-

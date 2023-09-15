@@ -1,9 +1,24 @@
 use bomberman::bomberman::{create_objects, detonar_bomb};
-use bomberman::file::{save_maze_in_file, read_file, parse_maze};
+use bomberman::file::{parse_maze, read_file, save_maze_in_file};
 use bomberman::game_data::GameData;
-use bomberman::utils::errores::{error_path_invalido, error_objetos_invalidos };
+use bomberman::utils::errores::{error_objetos_invalidos, error_path_invalido};
 use std::env;
 use std::error::Error;
+
+/// Parsea los argumentos de línea de comandos.
+///
+/// Esta función se encarga de parsear los argumentos de línea de comandos proporcionados al programa. Se espera que los argumentos incluyan el nombre del archivo de entrada, el directorio de salida, las coordenadas X e Y.
+///
+/// # Argumentos
+///
+/// * `input_file`: El nombre del archivo de entrada.
+/// * `output_directory`: El directorio de salida donde se guardará el laberinto modificado.
+/// * `coordinate_x`: La coordenada X en la que se colocará la bomba.
+/// * `coordinate_y`: La coordenada Y en la que se colocará la bomba.
+///
+/// # Errores
+///
+/// Esta función devuelve un `Result` que contiene una tupla con los valores parseados o un error si la cantidad de argumentos es incorrecta o si no se pueden parsear las coordenadas X e Y.
 
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     let arguments: Vec<String> = env::args().collect();
@@ -18,8 +33,6 @@ fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
 
     Ok((input_file, output_directory, coordinate_x, coordinate_y))
 }
-
-
 
 fn main() -> Result<(), Box<dyn Error>> {
     let (input_file, output_directory, coordinate_x, coordinate_y) = parse_arguments()?;

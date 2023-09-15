@@ -1,8 +1,19 @@
+use crate::utils::errores::error_empty_file;
 use std::error::Error;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
-use crate::utils::errores::error_empty_file;
+
+/// Lee el contenido de un archivo y lo devuelve como una cadena.
+///
+/// # Argumentos
+///
+/// - `input_file`: Ruta del archivo que se va a leer.
+///
+/// # Errores
+///
+/// Este método puede devolver un error si ocurren problemas al leer el archivo o si el archivo está vacío.
+///
 
 pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
     // Ahora 'file_contents' contiene el contenido completo del archivo como una cadena
@@ -14,6 +25,13 @@ pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
     Ok(file_contents)
 }
 
+/// Analiza el contenido del archivo para crear una representación del laberinto en forma de matriz.
+///
+/// # Argumentos
+///
+/// - `file_contents`: Contenido del archivo como una cadena.
+///
+
 pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
     let mut maze: Vec<Vec<String>> = Vec::new();
 
@@ -24,10 +42,19 @@ pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
     maze
 }
 
-pub fn save_maze_in_file(
-    maze: &Vec<Vec<String>>,
-    ruta: &str,
-) -> Result<(), std::io::Error> {
+/// Guarda una representación del laberinto en un archivo de texto.
+///
+/// # Argumentos
+///
+/// - `maze`: Matriz bidimensional que representa el laberinto.
+/// - `ruta`: Ruta del archivo en el que se guardará el laberinto.
+///
+/// # Errores
+///
+/// Este método puede devolver un error si ocurren problemas al escribir en el archivo.
+///
+
+pub fn save_maze_in_file(maze: &Vec<Vec<String>>, ruta: &str) -> Result<(), std::io::Error> {
     let mut file = File::create(ruta)?;
     for row in maze {
         for cell in row {
