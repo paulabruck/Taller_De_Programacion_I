@@ -110,7 +110,7 @@ fn process_character(
             Ok(())
         }
         'F' => {
-            process_enemy( chars, position, enemies);
+            process_enemy(chars, position, enemies);
             Ok(())
         }
         'D' => {
@@ -245,12 +245,7 @@ pub fn check_objects(
         )
     }
     if object.starts_with('F') {
-        GameData::handle_enemy(
-            game_data,
-            new_x,
-            y,
-            bomb,
-        )
+        GameData::handle_enemy(game_data, new_x, y, bomb)
     }
     if object == "R" && typee == TypeBomb::Normal {
         GameData::handle_rock(game_data)

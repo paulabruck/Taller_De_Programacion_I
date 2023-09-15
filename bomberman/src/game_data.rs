@@ -263,12 +263,7 @@ impl GameData {
     /// * `typee`: El tipo de bomba utilizada para enfrentar al enemigo.
     /// * `iterations_pending`: El número de iteraciones pendientes después de enfrentarse al enemigo.
     /// * `bomb`: Una referencia a la bomba utilizada para enfrentarse al enemigo.
-    pub fn handle_enemy(
-        game_data: &mut GameData,
-        new_x: usize,
-        y: usize,
-        bomb: &Bomb,
-    ) {
+    pub fn handle_enemy(game_data: &mut GameData, new_x: usize, y: usize, bomb: &Bomb) {
         if let Some(enemy) = game_data
             .enemies
             .iter_mut()

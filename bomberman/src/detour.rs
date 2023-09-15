@@ -1,4 +1,3 @@
-
 /// Enumeración que representa los posibles tipos de desvíos.
 #[derive(Debug, Clone, PartialEq)]
 pub enum TypeDetour {
