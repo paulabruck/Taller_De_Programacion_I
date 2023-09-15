@@ -44,7 +44,6 @@ pub fn process_bomb(
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `enemies`: Referencia mutable al vector de enemigos.
 pub fn process_enemy(
-    character: char,
     chars: &mut std::str::Chars,
     position: &mut (usize, usize),
     enemies: &mut Vec<Enemy>,
@@ -106,9 +105,18 @@ fn process_character(
     detours: &mut Vec<Detour>,
 ) -> Result<(), Box<dyn Error>> {
     match character {
-        'B' | 'S' => Ok(process_bomb(character, chars, position, bombs)),
-        'F' => Ok(process_enemy(character, chars, position, enemies)),
-        'D' => Ok(process_detour(chars, position, detours)),
+        'B' | 'S' => {
+            process_bomb(character, chars, position, bombs);
+            Ok(())
+        }
+        'F' => {
+            process_enemy( chars, position, enemies);
+            Ok(())
+        }
+        'D' => {
+            process_detour(chars, position, detours);
+            Ok(())
+        }
         'W' | 'R' => Ok(()),
         _ => Err(Box::new(error_objeto_invalido())),
     }
@@ -136,7 +144,7 @@ fn create_game_data_internal(
         bombs,
         enemies,
         detours,
-        maze: maze,
+        maze,
         wall_interceps: false,
         rock_interceps: false,
     }
@@ -178,7 +186,7 @@ pub fn create_objects(
             continue;
         };
         if character != ' ' {
-            if let Err(error) = process_character(
+            if let Err(_error) = process_character(
                 character,
                 &mut chars,
                 &mut position,
@@ -225,26 +233,23 @@ pub fn check_objects(
     interations_pending: usize,
     bomb: &Bomb,
 ) {
-    if object.starts_with("D") {
+    if object.starts_with('D') {
         GameData::handle_detour(
             game_data,
             object,
             new_x,
             y,
-            typee.clone(),
+            typee,
             interations_pending,
-            &bomb,
+            bomb,
         )
     }
-    if object.starts_with("F") {
+    if object.starts_with('F') {
         GameData::handle_enemy(
             game_data,
-            object,
             new_x,
             y,
-            typee.clone(),
-            interations_pending,
-            &bomb,
+            bomb,
         )
     }
     if object == "R" && typee == TypeBomb::Normal {
@@ -253,7 +258,7 @@ pub fn check_objects(
     if object == "W" {
         GameData::handle_wall(game_data)
     }
-    if object.starts_with("B") || object.starts_with("S") {
+    if object.starts_with('B') || object.starts_with('S') {
         GameData::handle_bomb(game_data, object, new_x, y)
     }
 }
@@ -281,13 +286,7 @@ pub fn detonar_bomb(
 
         game_data.maze[coordinate_x][coordinate_y] = "_".to_string();
         game_data.remove_bomb(coordinate_x, coordinate_y);
-        game_data.apply_bomb_effect(
-            coordinate_x,
-            coordinate_y,
-            reach,
-            tipo_bomb.clone(),
-            &copy_bomb,
-        );
+        game_data.apply_bomb_effect(coordinate_x, coordinate_y, reach, tipo_bomb, &copy_bomb);
     }
     Ok(())
 }

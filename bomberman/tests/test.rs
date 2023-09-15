@@ -20,7 +20,7 @@ fn test_guardar_laberinto_en_archivo() {
     ];
 
     // Prueba la función guardar_laberinto_en_archivo
-    let result = guardar_laberinto_en_archivo(&laberinto, "maze4.txt"); 
+    let result = guardar_laberinto_en_archivo(&laberinto, "maze4.txt");
     assert!(result.is_ok()); // Verifica si guardar el laberinto en un archivo tuvo éxito
 }
 

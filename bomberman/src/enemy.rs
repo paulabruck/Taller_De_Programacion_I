@@ -1,6 +1,4 @@
 use crate::bomb::Bomb;
-use crate::bomb::TypeBomb;
-use crate::game_data::GameData;
 
 /// Estructura que representa a un enemigo en el juego.
 #[derive(Clone, PartialEq, Debug)]

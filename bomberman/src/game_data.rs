@@ -2,7 +2,6 @@ use crate::bomb::{Bomb, TypeBomb};
 use crate::bomberman::check_objects;
 use crate::bomberman::detonar_bomb;
 use crate::detour::Detour;
-use crate::detour::TypeDetour;
 use crate::enemy::Enemy;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
@@ -40,7 +39,7 @@ impl GameData {
             bombs,
             enemies,
             detours,
-            maze: maze,
+            maze,
             wall_interceps,
             rock_interceps,
         }
@@ -95,7 +94,7 @@ impl GameData {
             y,
             typee,
             iterations_pending,
-            &bomb,
+            bomb,
         );
         *game_data = game_data_clone;
     }
@@ -122,11 +121,11 @@ impl GameData {
         bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=reach {
-            let new_x = x.wrapping_add(1 * dx);
+            let new_x = x.wrapping_add(dx);
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps == true || game_data.rock_interceps == true {
+                if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
             } else {
@@ -160,32 +159,32 @@ impl GameData {
             coordinate_x,
             coordinate_y,
             reach,
-            tipo_bomb.clone(),
-            &copy_bomb,
+            tipo_bomb,
+            copy_bomb,
         );
         Self::move_up(
             self,
             coordinate_x,
             coordinate_y,
             reach,
-            tipo_bomb.clone(),
-            &copy_bomb,
+            tipo_bomb,
+            copy_bomb,
         );
         Self::move_right(
             self,
             coordinate_x,
             coordinate_y,
             reach,
-            tipo_bomb.clone(),
-            &copy_bomb,
+            tipo_bomb,
+            copy_bomb,
         );
         Self::move_left(
             self,
             coordinate_x,
             coordinate_y,
             reach,
-            tipo_bomb.clone(),
-            &copy_bomb,
+            tipo_bomb,
+            copy_bomb,
         );
     }
     /// Esta función valida el estado actual del laberinto en las coordenadas especificadas.
@@ -216,7 +215,7 @@ impl GameData {
         if found_bomb && vidas_validas {
             Ok(())
         } else {
-            return Err(Box::new(error_objetos_invalidos()));
+            Err(Box::new(error_objetos_invalidos()))
         }
     }
 
@@ -241,44 +240,16 @@ impl GameData {
         bomb: &Bomb,
     ) {
         if object == "DU" {
-            Self::move_up(
-                game_data,
-                new_x,
-                y,
-                iterations_pending,
-                typee.clone(),
-                &bomb,
-            );
+            Self::move_up(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == "DD" {
-            Self::move_down(
-                game_data,
-                new_x,
-                y,
-                iterations_pending,
-                typee.clone(),
-                &bomb,
-            );
+            Self::move_down(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == "DR" {
-            Self::move_right(
-                game_data,
-                new_x,
-                y,
-                iterations_pending,
-                typee.clone(),
-                &bomb,
-            );
+            Self::move_right(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == "DL" {
-            Self::move_left(
-                game_data,
-                new_x,
-                y,
-                iterations_pending,
-                typee.clone(),
-                &bomb,
-            );
+            Self::move_left(game_data, new_x, y, iterations_pending, typee, bomb);
         }
     }
     /// Esta función maneja una situación en la que se encuentra un enemigo en el laberinto.
@@ -294,11 +265,8 @@ impl GameData {
     /// * `bomb`: Una referencia a la bomba utilizada para enfrentarse al enemigo.
     pub fn handle_enemy(
         game_data: &mut GameData,
-        object: &String,
         new_x: usize,
         y: usize,
-        typee: TypeBomb,
-        iterations_pending: usize,
         bomb: &Bomb,
     ) {
         if let Some(enemy) = game_data
@@ -314,8 +282,7 @@ impl GameData {
                         enemy.lives += 1;
                     }
                 } else {
-                    let mut new_received_bombs = Vec::new();
-                    new_received_bombs.push(bomb.clone());
+                    let new_received_bombs = vec![bomb.clone()];
                     enemy.received_bombs = Some(new_received_bombs);
                 }
                 enemy.lives -= 1;
@@ -356,9 +323,9 @@ impl GameData {
     /// * `object`: Una cadena que representa el tipo de objeto en la posición actual (e.g., "B" para bomba).
     /// * `new_x`: La nueva coordenada X después de encontrarse con la bomba.
     /// * `y`: La coordenada Y actual.
-    pub fn handle_bomb(game_data: &mut GameData, object: &String, new_x: usize, y: usize) {
+    pub fn handle_bomb(game_data: &mut GameData, _object: &str, new_x: usize, y: usize) {
         // Llama a la función detonar_bomb para manejar la explosión de la bomba
-        detonar_bomb(game_data, new_x, y);
+        let _ = detonar_bomb(game_data, new_x, y);
     }
     /// Mueve al jugador hacia arriba en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
@@ -385,11 +352,11 @@ impl GameData {
         bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=reach {
-            let new_x = x.wrapping_sub(1 * dx);
+            let new_x = x.wrapping_sub(dx);
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps == true || game_data.rock_interceps == true {
+                if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
             } else {
@@ -426,11 +393,11 @@ impl GameData {
         bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=reach {
-            let nueva_y = y.wrapping_add(1 * dx);
+            let nueva_y = y.wrapping_add(dx);
             let iterations_pending = reach - dx;
             if x < game_data.maze.len() && nueva_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, nueva_y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps == true || game_data.rock_interceps == true {
+                if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
             } else {
@@ -467,11 +434,11 @@ impl GameData {
         bomb: &'a Bomb,
     ) -> &'a mut GameData {
         for dx in 1..=reach {
-            let nueva_y = y.wrapping_sub(1 * dx);
+            let nueva_y = y.wrapping_sub(dx);
             let iterations_pending = reach - dx;
             if x < game_data.maze.len() && nueva_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, nueva_y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps == true || game_data.rock_interceps == true {
+                if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
             } else {

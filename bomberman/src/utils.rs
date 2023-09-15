@@ -1,10 +1,9 @@
-pub mod constantes{
+pub mod constantes {
     pub const ERROR_CREAR_OBJETOS: &str = "ERROR: [problema al crear los objetos del laberinto]";
     pub const ERROR_DETONANDO_BOMBA: &str = "ERROR: [problema al detonar la bomba]";
-    pub const ERROR_GUARDANDO_RESULTADO: &str = "ERROR: [problema al guardar el laberinto actualizado]";
+    pub const ERROR_GUARDANDO_RESULTADO: &str =
+        "ERROR: [problema al guardar el laberinto actualizado]";
     pub const ERROR_LEER_ARCHIVO: &str = "ERROR: [problema al leer el archivo]";
-
-
 }
 pub mod errores {
     use std::io::Error;

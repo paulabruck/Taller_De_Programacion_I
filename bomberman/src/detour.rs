@@ -1,6 +1,3 @@
-use crate::bomb::Bomb;
-use crate::bomb::TypeBomb;
-use crate::game_data::GameData;
 
 /// Enumeración que representa los posibles tipos de desvíos.
 #[derive(Debug, Clone, PartialEq)]
