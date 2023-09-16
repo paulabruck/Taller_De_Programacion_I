@@ -7,18 +7,24 @@ pub mod constantes {
     pub const BOMBA_NORMAL: char = 'B';
     pub const BOMBA_TRASPASO: char = 'S';
     pub const ENEMY: char = 'F';
+    pub const ENEMY_: &str = "F";
     pub const DETOUR: char = 'D';
     pub const WALL: char = 'W';
+    pub const WALL_: &str = "W";
     pub const ROCK: char = 'R';
+    pub const ROCK_: &str = "R";
     pub const SALTO_LINEA: char = '\n';
     pub const VACIO: char = '_';
+    pub const VACIO_: &str = "_";
     pub const ESPACIO: char = ' ';
     pub const RIGHT: char = 'R';
     pub const LEFT: char = 'L';
     pub const UP: char = 'U';
     pub const DOWN: char = 'D';
-
-
+    pub const DETOUR_UP: &str = "DU";
+    pub const DETOUR_DOWN: &str = "DD";
+    pub const DETOUR_RIGHT: &str = "DR";
+    pub const DETOUR_LEFT: &str = "DL";
 
 }
 pub mod errores {

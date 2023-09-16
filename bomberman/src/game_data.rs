@@ -5,6 +5,8 @@ use crate::detour::Detour;
 use crate::enemy::Enemy;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
+use crate::utils::constantes::*;
+
 
 #[derive(Clone)]
 pub struct GameData {
@@ -245,16 +247,16 @@ impl GameData {
         iterations_pending: usize,
         bomb: &Bomb,
     ) {
-        if object == "DU" {
+        if object == DETOUR_UP {
             Self::move_up(game_data, new_x, y, iterations_pending, typee, bomb);
         }
-        if object == "DD" {
+        if object == DETOUR_DOWN {
             Self::move_down(game_data, new_x, y, iterations_pending, typee, bomb);
         }
-        if object == "DR" {
+        if object == DETOUR_RIGHT {
             Self::move_right(game_data, new_x, y, iterations_pending, typee, bomb);
         }
-        if object == "DL" {
+        if object == DETOUR_LEFT {
             Self::move_left(game_data, new_x, y, iterations_pending, typee, bomb);
         }
     }
@@ -289,11 +291,11 @@ impl GameData {
                 }
                 enemy.lives -= 1;
                 let lives_str = enemy.lives.to_string();
-                let objeto_str = "F".to_string() + &lives_str;
+                let objeto_str = ENEMY_.to_string() + &lives_str;
                 game_data.maze[new_x][y] = objeto_str;
             }
             if enemy.lives == 0 {
-                game_data.maze[new_x][y] = "_".to_string();
+                game_data.maze[new_x][y] = VACIO_.to_string();
                 game_data.enemies.retain(|b| b.position != (new_x, y));
             }
         }

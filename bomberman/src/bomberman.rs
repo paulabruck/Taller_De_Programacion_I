@@ -249,10 +249,10 @@ pub fn check_objects(
     if object.starts_with(ENEMY) {
         GameData::handle_enemy(game_data, new_x, y, bomb)
     }
-    if object == "R" && typee == TypeBomb::Normal {
+    if object == ROCK_ && typee == TypeBomb::Normal {
         GameData::handle_rock(game_data)
     }
-    if object == "W" {
+    if object == WALL_ {
         GameData::handle_wall(game_data)
     }
     if object.starts_with(BOMBA_NORMAL) || object.starts_with(BOMBA_TRASPASO) {
