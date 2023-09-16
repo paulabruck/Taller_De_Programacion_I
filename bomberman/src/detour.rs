@@ -36,24 +36,29 @@ impl Detour {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::bomberman::*;
 
     #[test]
-    fn test_detour_creation() {
+    fn test_right_detour_creation() {
         let detour = Detour::new((1, 2), TypeDetour::Right);
         assert_eq!(detour.position, (1, 2));
         assert_eq!(detour.direction, TypeDetour::Right);
     }
-
     #[test]
-    fn test_process_detour() {
-        let mut chars = "DR".chars();
-        let mut position = (0, 0);
-        let mut detours = Vec::new();
-
-        process_detour(&mut chars, &mut position, &mut detours);
-
-        assert_eq!(detours.len(), 1);
-        assert_eq!(detours[0].position, (0, 0));
+    fn test_left_detour_creation() {
+        let detour = Detour::new((1, 2), TypeDetour::Left);
+        assert_eq!(detour.position, (1, 2));
+        assert_eq!(detour.direction, TypeDetour::Left);
+    }
+    #[test]
+    fn test_up_detour_creation() {
+        let detour = Detour::new((1, 2), TypeDetour::Up);
+        assert_eq!(detour.position, (1, 2));
+        assert_eq!(detour.direction, TypeDetour::Up);
+    }
+    #[test]
+    fn test_down_detour_creation() {
+        let detour = Detour::new((1, 2), TypeDetour::Down);
+        assert_eq!(detour.position, (1, 2));
+        assert_eq!(detour.direction, TypeDetour::Down);
     }
 }

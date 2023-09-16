@@ -15,6 +15,7 @@ pub struct GameData {
     pub wall_interceps: bool,
     pub rock_interceps: bool,
 }
+
 /// Crea una nueva instancia de `GameData` con los datos especificados.
 ///
 /// # Argumentos
@@ -44,6 +45,7 @@ impl GameData {
             rock_interceps,
         }
     }
+
     /// Encuentra una bomba en las coordenadas especificadas y devuelve una referencia mutable a ella.
     ///
     /// # Argumentos
@@ -56,6 +58,7 @@ impl GameData {
             .iter_mut()
             .find(|b| b.position == (coordinate_x, coordinate_y))
     }
+
     /// Elimina una bomba en las coordenadas especificadas.
     ///
     /// # Argumentos
@@ -67,7 +70,8 @@ impl GameData {
         self.bombs
             .retain(|b| b.position != (coordinate_x, coordinate_y));
     }
-    /// Esta función verifica los caminos posibles y aplica efectos en la dirección hacia abajo en el juego.
+
+    /// Verifica que obejto es el que se encunetra en la posicion segun el recorrido que se esta realizando 
     ///
     /// # Argumentos
     ///
@@ -98,7 +102,8 @@ impl GameData {
         );
         *game_data = game_data_clone;
     }
-    /// Esta función mueve al personaje hacia abajo en el laberinto y aplica efectos de bombas u obstáculos en su camino.
+
+    ///  mueve al personaje hacia abajo en el laberinto y aplica efectos de bombas y obstáculos en su camino.
     ///
     /// # Argumentos
     ///
@@ -129,7 +134,6 @@ impl GameData {
                     break;
                 }
             } else {
-                // La nueva posición está fuera de los límites del maze, así que detenemos la búsqueda en esa dirección.
                 break;
             }
         }
@@ -137,7 +141,8 @@ impl GameData {
         game_data.rock_interceps = false;
         game_data
     }
-    /// Esta función aplica el efecto de una bomba en las cuatro direcciones (arriba, abajo, izquierda y derecha) desde la posición especificada.
+
+    ///  aplica el efecto de una bomba en las cuatro direcciones (arriba, abajo, izquierda y derecha) desde la posición especificada.
     ///
     /// # Argumentos
     ///
@@ -187,7 +192,8 @@ impl GameData {
             copy_bomb,
         );
     }
-    /// Esta función valida el estado actual del laberinto en las coordenadas especificadas.
+
+    ///  valida el estado actual del laberinto en las coordenadas especificadas.
     ///
     /// # Argumentos
     ///
@@ -219,7 +225,7 @@ impl GameData {
         }
     }
 
-    /// Esta función maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
+    ///  maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
     ///
     /// # Argumentos
     ///
@@ -252,7 +258,8 @@ impl GameData {
             Self::move_left(game_data, new_x, y, iterations_pending, typee, bomb);
         }
     }
-    /// Esta función maneja una situación en la que se encuentra un enemigo en el laberinto.
+
+    ///  maneja una situación en la que se encuentra un enemigo en el laberinto.
     ///
     /// # Argumentos
     ///
@@ -292,7 +299,7 @@ impl GameData {
         }
     }
 
-    /// Esta función establece la señal de que un objeto tipo "rock" ha interceptado el camino.
+    ///  establece la señal de que un objeto tipo "rock" ha interceptado el camino.
     ///
     /// # Argumentos
     ///
@@ -301,7 +308,7 @@ impl GameData {
         game_data.rock_interceps = true;
     }
 
-    /// Esta función establece la señal de que un objeto tipo "wall" ha interceptado el camino.
+    ///  establece la señal de que un objeto tipo "wall" ha interceptado el camino.
     ///
     /// # Argumentos
     ///
@@ -310,7 +317,7 @@ impl GameData {
         game_data.wall_interceps = true;
     }
 
-    /// Esta función maneja una situación en la que se encuentra una bomba en el laberinto.
+    ///  maneja una situación en la que se encuentra una bomba en el laberinto.
     ///
     /// # Argumentos
     ///
@@ -319,12 +326,12 @@ impl GameData {
     /// * `new_x`: La nueva coordenada X después de encontrarse con la bomba.
     /// * `y`: La coordenada Y actual.
     pub fn handle_bomb(game_data: &mut GameData, _object: &str, new_x: usize, y: usize) {
-        // Llama a la función detonar_bomb para manejar la explosión de la bomba
         let _ = detonar_bomb(game_data, new_x, y);
     }
+
     /// Mueve al jugador hacia arriba en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
-    /// Esta función se encarga de mover al jugador hacia arriba en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
+    ///  se encarga de mover al jugador hacia arriba en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
     ///
     /// # Argumentos
     ///
@@ -355,7 +362,6 @@ impl GameData {
                     break;
                 }
             } else {
-                // La nueva posición está fuera de los límites del maze, así que detenemos la búsqueda en esa dirección.
                 break;
             }
         }
@@ -363,9 +369,10 @@ impl GameData {
         game_data.rock_interceps = false;
         game_data // Devuelve el game_data actualizado
     }
+
     /// Mueve al jugador hacia la derecha en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
-    /// Esta función se encarga de mover al jugador hacia la derecha en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
+    ///  se encarga de mover al jugador hacia la derecha en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
     ///
     /// # Argumentos
     ///
@@ -396,7 +403,6 @@ impl GameData {
                     break;
                 }
             } else {
-                // La nueva posición está fuera de los límites del maze, así que detenemos la búsqueda en esa dirección.
                 break;
             }
         }
@@ -404,9 +410,10 @@ impl GameData {
         game_data.rock_interceps = false;
         game_data // Devuelve el game_data actualizado
     }
+
     /// Mueve al jugador hacia la izquierda en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
-    /// Esta función se encarga de mover al jugador hacia la izquierda en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
+    ///  se encarga de mover al jugador hacia la izquierda en el laberinto, una casilla a la vez, hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo como una pared o una roca. Para cada paso, verifica si la nueva posición está dentro de los límites del laberinto y realiza las comprobaciones necesarias llamando a `check_paths`. Si se encuentra con una pared o una roca, se detiene. Al final, restablece las señales de intercepción de pared y roca y devuelve una referencia mutable a los datos del juego actualizados.
     ///
     /// # Argumentos
     ///
@@ -437,7 +444,6 @@ impl GameData {
                     break;
                 }
             } else {
-                // La nueva posición está fuera de los límites del maze, así que detenemos la búsqueda en esa dirección.
                 break;
             }
         }
@@ -445,9 +451,10 @@ impl GameData {
         game_data.rock_interceps = false;
         game_data // Devuelve el game_data actualizado
     }
+
     /// Imprime el laberinto en la consola.
     ///
-    /// Esta función toma una referencia a una matriz bidimensional de cadenas que representa el laberinto y lo imprime en la consola. Cada elemento de la matriz se imprime sin espacio adicional entre ellos, y se agrega un espacio en blanco después de cada celda para separar las columnas. Además, se agrega un salto de línea al final de cada fila para separar las filas en la salida.
+    ///  toma una referencia a una matriz bidimensional de cadenas que representa el laberinto y lo imprime en la consola. Cada elemento de la matriz se imprime sin espacio adicional entre ellos, y se agrega un espacio en blanco después de cada celda para separar las columnas. Además, se agrega un salto de línea al final de cada fila para separar las filas en la salida.
     ///
     /// # Argumentos
     ///
@@ -459,7 +466,7 @@ impl GameData {
                 print!("{}", cell);
                 print!(" ");
             }
-            println!(); // Salto de línea para separar las filas
+            println!(); 
         }
     }
 }
@@ -467,7 +474,7 @@ impl GameData {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    use crate::detour::TypeDetour;
     #[test]
     fn test_create_game_data() {
         let bombs = vec![
@@ -483,8 +490,8 @@ mod tests {
         ];
 
         let maze = vec![
-            vec!["X".to_string(), " ".to_string()],
-            vec!["W".to_string(), "D".to_string()],
+            vec!["R".to_string(), "_".to_string()],
+            vec!["W".to_string(), "DU".to_string()],
         ];
         let game_data = GameData::new(
             bombs.clone(),
@@ -495,7 +502,6 @@ mod tests {
             false,
         );
 
-        // Verificar que los datos creados sean iguales a los datos de prueba
         assert_eq!(game_data.bombs, bombs);
         assert_eq!(game_data.enemies, enemies);
         assert_eq!(game_data.detours, detours);
@@ -570,6 +576,7 @@ mod tests {
         // Verifica que la posición (1, 1) ya no esté en la lista de bombs
         assert_eq!(game_data.bombs.iter().any(|b| b.position == (1, 1)), false);
     }
+
     #[test]
     fn test_validate_maze() {
         let bombs = vec![Bomb {

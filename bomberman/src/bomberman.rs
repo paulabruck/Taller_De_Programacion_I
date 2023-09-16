@@ -6,6 +6,8 @@ use crate::enemy::Enemy;
 use crate::game_data::GameData;
 use crate::utils::errores::error_objeto_invalido;
 use std::error::Error;
+use crate::utils::constantes::*;
+
 
 /// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
 ///
@@ -24,7 +26,7 @@ pub fn process_bomb(
     if let Some(next_char) = chars.next() {
         if let Some(digit) = next_char.to_digit(10) {
             let value_as_usize = digit as usize;
-            if character == 'B' {
+            if character == BOMBA_NORMAL {
                 let bomb = Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize);
                 bombs.push(bomb);
             } else {
@@ -71,10 +73,10 @@ pub fn process_detour(
 ) {
     if let Some(next_char) = chars.next() {
         let direction = match next_char {
-            'R' => TypeDetour::Right,
-            'L' => TypeDetour::Left,
-            'U' => TypeDetour::Up,
-            'D' => TypeDetour::Down,
+            RIGHT => TypeDetour::Right,
+            LEFT => TypeDetour::Left,
+            UP => TypeDetour::Up,
+            DOWN => TypeDetour::Down,
             _ => TypeDetour::Left, // Definir un valor predeterminado apropiado
         };
         let detour = Detour::new((position.0, position.1), direction);
@@ -105,19 +107,19 @@ fn process_character(
     detours: &mut Vec<Detour>,
 ) -> Result<(), Box<dyn Error>> {
     match character {
-        'B' | 'S' => {
+        BOMBA_NORMAL | BOMBA_TRASPASO => {
             process_bomb(character, chars, position, bombs);
             Ok(())
         }
-        'F' => {
+        ENEMY => {
             process_enemy(chars, position, enemies);
             Ok(())
         }
-        'D' => {
+        DETOUR => {
             process_detour(chars, position, detours);
             Ok(())
         }
-        'W' | 'R' => Ok(()),
+        WALL | ROCK => Ok(()),
         _ => Err(Box::new(error_objeto_invalido())),
     }
 }
@@ -150,7 +152,7 @@ fn create_game_data_internal(
     }
 }
 
-/// Crea objetos (bombas, enemigos y desvíos) a partir de la cadena de contenido del archivo.
+/// Crea objetos a partir de la cadena de contenido del archivo.
 ///
 /// # Argumentos
 ///
@@ -175,17 +177,17 @@ pub fn create_objects(
     let mut chars = file_contents.chars();
 
     while let Some(character) = chars.next() {
-        if character == '\n' {
+        if character == SALTO_LINEA {
             position.1 = 0;
             position.0 += 1;
         }
-        if character == ' ' {
+        if character == ESPACIO {
             position.1 += 1;
         }
-        if character == '\n' || character == '_' {
+        if character == SALTO_LINEA || character == VACIO {
             continue;
         };
-        if character != ' ' {
+        if character != ESPACIO {
             if let Err(_error) = process_character(
                 character,
                 &mut chars,
@@ -213,7 +215,7 @@ pub fn create_objects(
     Ok(game_data)
 }
 
-/// Realiza las acciones correspondientes a un objeto en el laberinto.
+/// Realiza las acciones correspondientes a un objeto en el laberinto. Chequea que clase de objeto see ncunetran en el alcance de la bomba 
 ///
 /// # Argumentos
 ///
@@ -233,7 +235,7 @@ pub fn check_objects(
     interations_pending: usize,
     bomb: &Bomb,
 ) {
-    if object.starts_with('D') {
+    if object.starts_with(DETOUR) {
         GameData::handle_detour(
             game_data,
             object,
@@ -244,7 +246,7 @@ pub fn check_objects(
             bomb,
         )
     }
-    if object.starts_with('F') {
+    if object.starts_with(ENEMY) {
         GameData::handle_enemy(game_data, new_x, y, bomb)
     }
     if object == "R" && typee == TypeBomb::Normal {
@@ -253,7 +255,7 @@ pub fn check_objects(
     if object == "W" {
         GameData::handle_wall(game_data)
     }
-    if object.starts_with('B') || object.starts_with('S') {
+    if object.starts_with(BOMBA_NORMAL) || object.starts_with(BOMBA_TRASPASO) {
         GameData::handle_bomb(game_data, object, new_x, y)
     }
 }

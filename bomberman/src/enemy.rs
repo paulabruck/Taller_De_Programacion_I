@@ -32,8 +32,6 @@ impl Enemy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::bomb::{Bomb, TypeBomb};
-    use crate::game_data::GameData;
 
     #[test]
     fn test_new_enemy() {

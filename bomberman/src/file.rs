@@ -14,9 +14,7 @@ use std::io::Write;
 ///
 /// Este método puede devolver un error si ocurren problemas al leer el archivo o si el archivo está vacío.
 ///
-
 pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
-    // Ahora 'file_contents' contiene el contenido completo del archivo como una cadena
     let file_contents = read_to_string(input_file)?;
     if file_contents.is_empty() {
         return Err(Box::new(error_empty_file()));
@@ -31,10 +29,8 @@ pub fn read_file(input_file: &str) -> Result<String, Box<dyn Error>> {
 ///
 /// - `file_contents`: Contenido del archivo como una cadena.
 ///
-
 pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
     let mut maze: Vec<Vec<String>> = Vec::new();
-
     for line in file_contents.lines() {
         let row: Vec<String> = line.split_whitespace().map(|s| s.to_string()).collect();
         maze.push(row);
@@ -53,7 +49,6 @@ pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
 ///
 /// Este método puede devolver un error si ocurren problemas al escribir en el archivo.
 ///
-
 pub fn save_maze_in_file(maze: &Vec<Vec<String>>, ruta: &str) -> Result<(), std::io::Error> {
     let mut file = File::create(ruta)?;
     for row in maze {
@@ -65,6 +60,7 @@ pub fn save_maze_in_file(maze: &Vec<Vec<String>>, ruta: &str) -> Result<(), std:
     }
     Ok(())
 }
+
 /// Escribe un mensaje de error en un archivo ubicado en la ruta especificada.
 ///
 /// # Argumentos
@@ -78,9 +74,6 @@ pub fn save_maze_in_file(maze: &Vec<Vec<String>>, ruta: &str) -> Result<(), std:
 ///
 pub fn write_error_in_file(mensaje_error: &str, ruta_archivo: &str) -> Result<(), std::io::Error> {
     let mut file = File::create(ruta_archivo)?;
-
-    // Escribe el mensaje de error en el archivo
     file.write_all(mensaje_error.as_bytes())?;
-
     Ok(())
 }

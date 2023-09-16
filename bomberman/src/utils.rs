@@ -4,6 +4,22 @@ pub mod constantes {
     pub const ERROR_GUARDANDO_RESULTADO: &str =
         "ERROR: [problema al guardar el laberinto actualizado]";
     pub const ERROR_LEER_ARCHIVO: &str = "ERROR: [problema al leer el archivo]";
+    pub const BOMBA_NORMAL: char = 'B';
+    pub const BOMBA_TRASPASO: char = 'S';
+    pub const ENEMY: char = 'F';
+    pub const DETOUR: char = 'D';
+    pub const WALL: char = 'W';
+    pub const ROCK: char = 'R';
+    pub const SALTO_LINEA: char = '\n';
+    pub const VACIO: char = '_';
+    pub const ESPACIO: char = ' ';
+    pub const RIGHT: char = 'R';
+    pub const LEFT: char = 'L';
+    pub const UP: char = 'U';
+    pub const DOWN: char = 'D';
+
+
+
 }
 pub mod errores {
     use std::io::Error;
