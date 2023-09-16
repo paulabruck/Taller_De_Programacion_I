@@ -3,10 +3,9 @@ use crate::bomberman::check_objects;
 use crate::bomberman::detonar_bomb;
 use crate::detour::Detour;
 use crate::enemy::Enemy;
+use crate::utils::constantes::*;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
-use crate::utils::constantes::*;
-
 
 #[derive(Clone)]
 pub struct GameData {
@@ -73,7 +72,7 @@ impl GameData {
             .retain(|b| b.position != (coordinate_x, coordinate_y));
     }
 
-    /// Verifica que obejto es el que se encunetra en la posicion segun el recorrido que se esta realizando 
+    /// Verifica que obejto es el que se encunetra en la posicion segun el recorrido que se esta realizando
     ///
     /// # Argumentos
     ///
@@ -468,7 +467,7 @@ impl GameData {
                 print!("{}", cell);
                 print!(" ");
             }
-            println!(); 
+            println!();
         }
     }
 }

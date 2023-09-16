@@ -25,7 +25,6 @@ pub mod constantes {
     pub const DETOUR_DOWN: &str = "DD";
     pub const DETOUR_RIGHT: &str = "DR";
     pub const DETOUR_LEFT: &str = "DL";
-
 }
 pub mod errores {
     use std::io::Error;

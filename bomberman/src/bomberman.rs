@@ -4,10 +4,9 @@ use crate::detour::Detour;
 use crate::detour::TypeDetour;
 use crate::enemy::Enemy;
 use crate::game_data::GameData;
+use crate::utils::constantes::*;
 use crate::utils::errores::error_objeto_invalido;
 use std::error::Error;
-use crate::utils::constantes::*;
-
 
 /// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
 ///
@@ -215,7 +214,7 @@ pub fn create_objects(
     Ok(game_data)
 }
 
-/// Realiza las acciones correspondientes a un objeto en el laberinto. Chequea que clase de objeto see ncunetran en el alcance de la bomba 
+/// Realiza las acciones correspondientes a un objeto en el laberinto. Chequea que clase de objeto see ncunetran en el alcance de la bomba
 ///
 /// # Argumentos
 ///

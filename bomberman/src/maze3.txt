@@ -1,0 +1,7 @@
+F4 _ _ _ _ _ _
+W W _ W _ W _
+S3 R R R F2 _ _
+_ W _ W _ W _
+B2 W F2 _ DU _ _
+R W _ W _ W _
+F1 _ _ _ _ _ _
