@@ -45,9 +45,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(error);
         }
     };
-
     let maze = parse_maze(&file_contents);
-
     let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(_error) => {
@@ -55,7 +53,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(Box::new(error_objetos_invalidos()));
         }
     };
-
     match detonar_bomb(&mut game_data, coordinate_x, coordinate_y) {
         Ok(resultado) => resultado,
         Err(error) => {
@@ -63,7 +60,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             return Err(error);
         }
     };
-
     match save_maze_in_file(&game_data.maze, &output_directory) {
         Ok(_) => println!("El maze se ha guardado exitosamente."),
         Err(err) => {
@@ -71,7 +67,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             eprintln!("Error al guardar el maze: {}", err);
         }
     };
-
     GameData::print_maze(&game_data.maze);
     Ok(())
 }
