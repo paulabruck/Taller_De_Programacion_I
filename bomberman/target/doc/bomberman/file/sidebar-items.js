@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["parse_maze","read_file","save_maze_in_file","write_error_in_file"]};

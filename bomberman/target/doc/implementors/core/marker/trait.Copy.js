@@ -1,3 +1,0 @@
-(function() {var implementors = {
-"bomberman":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.72.0/core/marker/trait.Copy.html\" title=\"trait core::marker::Copy\">Copy</a> for <a class=\"enum\" href=\"bomberman/bomb/enum.TypeBomb.html\" title=\"enum bomberman::bomb::TypeBomb\">TypeBomb</a>"]]
-};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
