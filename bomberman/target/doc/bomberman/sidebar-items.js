@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["bomb","bomberman","detour","enemy","file","game_data","utils"]};

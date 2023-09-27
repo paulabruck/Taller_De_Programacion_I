@@ -17,24 +17,29 @@ use std::error::Error;
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `bombs`: Referencia mutable al vector de bombas.
 pub fn process_bomb(
-    character: char,
-    chars: &mut std::str::Chars,
+    maze: &Vec<Vec<String>>, // Cambia el parámetro a una referencia a la matriz maze
+    character: &str,
     position: &mut (usize, usize),
     bombs: &mut Vec<Bomb>,
-) {
-    if let Some(next_char) = chars.next() {
-        if let Some(digit) = next_char.to_digit(10) {
-            let value_as_usize = digit as usize;
-            if character == BOMBA_NORMAL {
-                let bomb = Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize);
-                bombs.push(bomb);
-            } else {
-                let bomb = Bomb::new((position.0, position.1), TypeBomb::Traspaso, value_as_usize);
+) -> Result<(), Box<dyn Error>> {
+    
+    if position.0 < maze.len() && position.1 < maze[position.0].len() {
+        if let Some(character2) = maze[position.0][position.1].chars().rev().next() {
+            if let Some(digit) = character2.to_digit(10) {
+                let value_as_usize = digit as usize;
+                let bomb = if character.starts_with(BOMBA_NORMAL ) {
+                    Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize)
+                } else {
+                    Bomb::new((position.0, position.1), TypeBomb::Traspaso, value_as_usize)
+                };
                 bombs.push(bomb);
             }
         }
     }
+    Ok(())
 }
+
+
 
 /// Procesa un carácter como un enemigo y agrega una instancia de `Enemy` al vector `enemies`.
 ///
@@ -45,18 +50,20 @@ pub fn process_bomb(
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `enemies`: Referencia mutable al vector de enemigos.
 pub fn process_enemy(
-    chars: &mut std::str::Chars,
+    maze: &Vec<Vec<String>>, // Cambia el parámetro a la matriz maze
     position: &mut (usize, usize),
     enemies: &mut Vec<Enemy>,
 ) {
-    if let Some(next_char) = chars.next() {
-        if let Some(digit) = next_char.to_digit(10) {
+    if let Some(character2) = maze[position.0][position.1].chars().rev().next() {
+        if let Some(digit) = character2.to_digit(10) {
             let value_as_usize = digit as usize;
             let enemy = Enemy::new((position.0, position.1), value_as_usize);
             enemies.push(enemy);
         }
     }
+    
 }
+
 
 /// Procesa un carácter como un desvío y agrega una instancia de `Detour` al vector `detours`.
 ///
@@ -66,12 +73,12 @@ pub fn process_enemy(
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `detours`: Referencia mutable al vector de desvíos.
 pub fn process_detour(
-    chars: &mut std::str::Chars,
+    maze: &Vec<Vec<String>>, // Cambia el parámetro a la matriz maze
     position: &mut (usize, usize),
     detours: &mut Vec<Detour>,
 ) {
-    if let Some(next_char) = chars.next() {
-        let direction = match next_char {
+    if let Some(next_char) = maze.get(position.0).and_then(|row| row.get(position.1)) {
+        let direction = match next_char.as_str() {
             RIGHT => TypeDetour::Right,
             LEFT => TypeDetour::Left,
             UP => TypeDetour::Up,
@@ -82,6 +89,7 @@ pub fn process_detour(
         detours.push(detour);
     }
 }
+
 
 /// Procesa un carácter como un objeto en el laberinto y realiza las acciones correspondientes.
 ///
@@ -97,31 +105,32 @@ pub fn process_detour(
 /// # Errores
 ///
 /// Devuelve un error si el carácter representa un objeto inválido en el laberinto.
-fn process_character(
-    character: char,
-    chars: &mut std::str::Chars,
+pub fn process_character(
+    character: &str,
+    maze: Vec<Vec<String>>,
     position: &mut (usize, usize),
     bombs: &mut Vec<Bomb>,
     enemies: &mut Vec<Enemy>,
     detours: &mut Vec<Detour>,
 ) -> Result<(), Box<dyn Error>> {
-    match character {
-        BOMBA_NORMAL | BOMBA_TRASPASO => {
-            process_bomb(character, chars, position, bombs);
-            Ok(())
-        }
-        ENEMY => {
-            process_enemy(chars, position, enemies);
-            Ok(())
-        }
-        DETOUR => {
-            process_detour(chars, position, detours);
-            Ok(())
-        }
-        WALL | ROCK => Ok(()),
-        _ => Err(Box::new(error_objeto_invalido())),
+    if character.starts_with(BOMBA_NORMAL) || character.starts_with(BOMBA_TRASPASO) {
+        
+        process_bomb(&maze, character, position, bombs);
+        Ok(())
+    } else if character.starts_with(ENEMY) {
+        process_enemy(&maze, position, enemies);
+        Ok(())
+    } else if character.starts_with(DETOUR) {
+        process_detour(&maze, position, detours);
+        Ok(())
+    } else if character.starts_with(WALL) || character.starts_with(ROCK) || character.starts_with(VACIO_) {
+        Ok(())
+    } else {
+        Err(Box::new(error_objeto_invalido()))
     }
 }
+
+
 
 /// Crea una instancia de `GameData` internamente utilizando los vectores de objetos y el laberinto.
 ///
@@ -156,15 +165,14 @@ fn create_game_data_internal(
 /// # Argumentos
 ///
 /// - `file_contents`: Referencia mutable a la cadena de contenido del archivo.
-/// - `coordinate_x`: Coordenada X del jugador.
-/// - `coordinate_y`: Coordenada Y del jugador.
+/// - `coordinate_x`: Coordenada X del objeto.
+/// - `coordinate_y`: Coordenada Y del objeto.
 /// - `maze`: Laberinto representado como una matriz de cadenas.
 ///
 /// # Errores
 ///
 /// Devuelve un error si se encuentra un objeto inválido en el laberinto.
 pub fn create_objects(
-    file_contents: &mut str,
     coordinate_x: usize,
     coordinate_y: usize,
     maze: Vec<Vec<String>>,
@@ -173,28 +181,31 @@ pub fn create_objects(
     let mut bombs: Vec<Bomb> = Vec::new();
     let mut enemies: Vec<Enemy> = Vec::new();
     let mut detours: Vec<Detour> = Vec::new();
-    let mut chars = file_contents.chars();
 
-    while let Some(character) = chars.next() {
-        if character == SALTO_LINEA {
-            position.1 = 0;
-            position.0 += 1;
-        }
-        if character == ESPACIO {
-            position.1 += 1;
-        }
-        if character == SALTO_LINEA || character == VACIO {
-            continue;
-        };
-        if character != ESPACIO {
-            if let Err(_error) = process_character(
-                character,
-                &mut chars,
-                &mut position,
-                &mut bombs,
-                &mut enemies,
-                &mut detours,
-            ) {
+    // Recorre la matriz maze en lugar de los caracteres del archivo
+    for (row_index, row) in maze.iter().enumerate() {
+        for (col_index, character) in row.iter().enumerate() {
+            // if character == &SALTO_LINEA {
+                //     position.1 = 0;
+                //     position.0 += 1;
+                // }
+                // if character == &ESPACIO {
+                    //     position.1 += 1;
+                    // }
+                    if character == &SALTO_LINEA || character == &VACIO_ {
+                        continue;
+                    }
+                    position.0 = row_index;
+                    position.1 = col_index;
+                    if let Err(_error) = process_character(
+                        character,
+                        maze.clone(),
+                        &mut position,
+                        &mut bombs,
+                        &mut enemies,
+                        &mut detours,
+                    ) {
+                
                 return Err(Box::new(error_objeto_invalido()));
             }
         }
@@ -206,15 +217,18 @@ pub fn create_objects(
         detours.clone(),
         maze.clone(),
     );
-
+    for enemy in enemies {
+        println!("{}", format!("{:?}", enemy));
+    }
     if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
         eprintln!("Error: {}", error);
         return Err(Box::new(error_objeto_invalido()));
     }
+   
     Ok(game_data)
 }
 
-/// Realiza las acciones correspondientes a un objeto en el laberinto. Chequea que clase de objeto see ncunetran en el alcance de la bomba
+/// Realiza las acciones correspondientes a un objeto en el laberinto. Chequea que clase de objeto se encuentran en el alcance de la bomba
 ///
 /// # Argumentos
 ///
@@ -246,6 +260,7 @@ pub fn check_objects(
         )
     }
     if object.starts_with(ENEMY) {
+        
         GameData::handle_enemy(game_data, new_x, y, bomb)
     }
     if object == ROCK_ && typee == TypeBomb::Normal {

@@ -41,29 +41,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         Ok(contents) => contents,
         Err(error) => {
             eprintln!("Error al leer el archivo: {}", error);
-            let _ = write_error_in_file(ERROR_LEER_ARCHIVO, &output_directory);
+            let _ = write_error_in_file(ERROR_LEER_ARCHIVO, &output_directory, &input_file);
             return Err(error);
         }
     };
     let maze = parse_maze(&file_contents);
-    let mut game_data = match create_objects(&mut file_contents, coordinate_x, coordinate_y, maze) {
+    let mut game_data = match create_objects(coordinate_x, coordinate_y, maze) {
         Ok(data) => data,
         Err(_error) => {
-            let _ = write_error_in_file(ERROR_CREAR_OBJETOS, &output_directory);
+            let _ = write_error_in_file(ERROR_CREAR_OBJETOS, &output_directory, &input_file);
             return Err(Box::new(error_objetos_invalidos()));
         }
     };
     match detonar_bomb(&mut game_data, coordinate_x, coordinate_y) {
         Ok(resultado) => resultado,
         Err(error) => {
-            let _ = write_error_in_file(ERROR_DETONANDO_BOMBA, &output_directory);
+            let _ = write_error_in_file(ERROR_DETONANDO_BOMBA, &output_directory, &input_file);
             return Err(error);
         }
     };
-    match save_maze_in_file(&game_data.maze, &output_directory) {
+    match save_maze_in_file(&game_data.maze, &output_directory, &input_file) {
         Ok(_) => println!("El maze se ha guardado exitosamente."),
         Err(err) => {
-            let _ = write_error_in_file(ERROR_GUARDANDO_RESULTADO, &output_directory);
+            let _ = write_error_in_file(ERROR_GUARDANDO_RESULTADO, &output_directory, &input_file);
             eprintln!("Error al guardar el maze: {}", err);
         }
     };

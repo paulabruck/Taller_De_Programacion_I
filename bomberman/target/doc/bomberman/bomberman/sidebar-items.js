@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["check_objects","create_objects","detonar_bomb","process_bomb","process_detour","process_enemy"]};

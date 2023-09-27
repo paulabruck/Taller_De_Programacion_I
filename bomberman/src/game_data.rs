@@ -7,13 +7,25 @@ use crate::utils::constantes::*;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
 
+/// `GameData` es una estructura que almacena los datos del juego, incluyendo información
+/// sobre las bombas, enemigos, desvíos, el laberinto y propiedades de intercepción.
+///
+/// Esta estructura es utilizada para gestionar el estado del juego y proporciona un
+/// conjunto de campos públicos que permiten el acceso a los datos relevantes.
+///
 #[derive(Clone)]
 pub struct GameData {
+    /// Vector que almacena las bombas presentes en el juego.
     pub bombs: Vec<Bomb>,
+    /// Vector que almacena los enemigos presentes en el juego.
     pub enemies: Vec<Enemy>,
+    /// Vector que almacena los desvíos presentes en el juego.
     pub detours: Vec<Detour>,
+    /// Matriz que representa el laberinto del juego.
     pub maze: Vec<Vec<String>>,
+    /// Indica si una pared esta interceptando una rafaga 
     pub wall_interceps: bool,
+    /// Indica si una roca esta interceptando una rafaga 
     pub rock_interceps: bool,
 }
 
@@ -72,7 +84,7 @@ impl GameData {
             .retain(|b| b.position != (coordinate_x, coordinate_y));
     }
 
-    /// Verifica que obejto es el que se encunetra en la posicion segun el recorrido que se esta realizando
+    /// Verifica que objeto es el que se encunetra en la posicion segun el recorrido que se esta realizando
     ///
     /// # Argumentos
     ///
@@ -104,28 +116,28 @@ impl GameData {
         *game_data = game_data_clone;
     }
 
-    ///  mueve al personaje hacia abajo en el laberinto y aplica efectos de bombas y obstáculos en su camino.
+    ///  mueve a la rafaga hacia abajo en el laberinto y aplica efectos de bombas y obstáculos en su camino.
     ///
     /// # Argumentos
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
-    /// * `x`: La coordenada X actual del personaje.
-    /// * `y`: La coordenada Y actual del personaje.
-    /// * `reach`: La distancia máxima que el personaje puede moverse hacia abajo.
+    /// * `x`: La coordenada X actual de la rafaga.
+    /// * `y`: La coordenada Y actual de la rafaga.
+    /// * `reach`: La distancia máxima que la rafaga puede moverse hacia abajo.
     /// * `typee`: El tipo de bomba que se está utilizando.
     /// * `bomb`: Una referencia a la bomba que se está utilizando.
     ///
     /// # Devolución
     ///
-    /// Devuelve una referencia mutable a los datos del juego actualizados después de mover al personaje.
-    pub fn move_down<'a>(
-        game_data: &'a mut GameData,
+    /// Devuelve una referencia mutable a los datos del juego actualizados después de mover a la rafaga.
+    pub fn move_down(
+        game_data: &mut GameData,
         x: usize,
         y: usize,
         reach: usize,
         typee: TypeBomb,
-        bomb: &'a Bomb,
-    ) -> &'a mut GameData {
+        bomb: &Bomb,
+    ) {
         for dx in 1..=reach {
             let new_x = x.wrapping_add(dx);
             let iterations_pending = reach - dx;
@@ -140,8 +152,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data
     }
+    
 
     ///  aplica el efecto de una bomba en las cuatro direcciones (arriba, abajo, izquierda y derecha) desde la posición especificada.
     ///
@@ -160,6 +172,7 @@ impl GameData {
         tipo_bomb: TypeBomb,
         copy_bomb: &Bomb,
     ) {
+        
         Self::move_down(
             self,
             coordinate_x,
@@ -214,18 +227,18 @@ impl GameData {
             .bombs
             .iter()
             .any(|b| b.position == (coordinate_x, coordinate_y) && b.reach > 0);
-        let vidas_validas = self
-            .enemies
-            .iter()
-            .any(|enemy| enemy.lives <= 3 && enemy.lives > 0);
-
-        if found_bomb && vidas_validas {
+        
+        let has_invalid_enemy = self.enemies.iter().any(|enemy| {
+            enemy.lives > 3 || enemy.lives <= 0
+        });
+    
+        if found_bomb && !has_invalid_enemy {
             Ok(())
         } else {
             Err(Box::new(error_objetos_invalidos()))
         }
     }
-
+    
     ///  maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
     ///
     /// # Argumentos
@@ -265,13 +278,16 @@ impl GameData {
     /// # Argumentos
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
-    /// * `object`: Una cadena que representa el tipo de enemigo.
     /// * `new_x`: La nueva coordenada X después de encontrarse con el enemigo.
     /// * `y`: La coordenada Y actual.
     /// * `typee`: El tipo de bomba utilizada para enfrentar al enemigo.
     /// * `iterations_pending`: El número de iteraciones pendientes después de enfrentarse al enemigo.
     /// * `bomb`: Una referencia a la bomba utilizada para enfrentarse al enemigo.
     pub fn handle_enemy(game_data: &mut GameData, new_x: usize, y: usize, bomb: &Bomb) {
+        print!("holaaa ");
+        print!(" {}", new_x);
+        print!(" {}", y);
+
         if let Some(enemy) = game_data
             .enemies
             .iter_mut()
@@ -346,14 +362,14 @@ impl GameData {
     /// # Devuelve
     ///
     /// Una referencia mutable a los datos del juego actualizados después del movimiento.
-    pub fn move_up<'a>(
-        game_data: &'a mut GameData,
+    pub fn move_up(
+        game_data: &mut GameData,
         x: usize,
         y: usize,
         reach: usize,
         typee: TypeBomb,
-        bomb: &'a Bomb,
-    ) -> &'a mut GameData {
+        bomb: &Bomb,
+    ) {
         for dx in 1..=reach {
             let new_x = x.wrapping_sub(dx);
             let iterations_pending = reach - dx;
@@ -368,8 +384,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data // Devuelve el game_data actualizado
     }
+    
 
     /// Mueve al jugador hacia la derecha en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
@@ -387,19 +403,19 @@ impl GameData {
     /// # Devuelve
     ///
     /// Una referencia mutable a los datos del juego actualizados después del movimiento.
-    pub fn move_right<'a>(
-        game_data: &'a mut GameData,
+    pub fn move_right(
+        game_data: &mut GameData,
         x: usize,
         y: usize,
         reach: usize,
         typee: TypeBomb,
-        bomb: &'a Bomb,
-    ) -> &'a mut GameData {
-        for dx in 1..=reach {
-            let nueva_y = y.wrapping_add(dx);
-            let iterations_pending = reach - dx;
-            if x < game_data.maze.len() && nueva_y < game_data.maze[x].len() {
-                Self::check_paths(x, game_data, nueva_y, typee, bomb, iterations_pending);
+        bomb: &Bomb,
+    ) {
+        for dy in 1..=reach {
+            let new_y = y.wrapping_add(dy);
+            let iterations_pending = reach - dy;
+            if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
+                Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
                 if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
@@ -409,8 +425,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data // Devuelve el game_data actualizado
     }
+    
 
     /// Mueve al jugador hacia la izquierda en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
@@ -428,19 +444,19 @@ impl GameData {
     /// # Devuelve
     ///
     /// Una referencia mutable a los datos del juego actualizados después del movimiento.
-    pub fn move_left<'a>(
-        game_data: &'a mut GameData,
+    pub fn move_left(
+        game_data: &mut GameData,
         x: usize,
         y: usize,
         reach: usize,
         typee: TypeBomb,
-        bomb: &'a Bomb,
-    ) -> &'a mut GameData {
-        for dx in 1..=reach {
-            let nueva_y = y.wrapping_sub(dx);
-            let iterations_pending = reach - dx;
-            if x < game_data.maze.len() && nueva_y < game_data.maze[x].len() {
-                Self::check_paths(x, game_data, nueva_y, typee, bomb, iterations_pending);
+        bomb: &Bomb,
+    ) {
+        for dy in 1..=reach {
+            let new_y = y.wrapping_sub(dy);
+            let iterations_pending = reach - dy;
+            if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
+                Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
                 if game_data.wall_interceps || game_data.rock_interceps {
                     break;
                 }
@@ -450,8 +466,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data // Devuelve el game_data actualizado
     }
+    
 
     /// Imprime el laberinto en la consola.
     ///
