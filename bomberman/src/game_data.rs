@@ -6,6 +6,8 @@ use crate::enemy::Enemy;
 use crate::utils::constantes::*;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
+use std::collections::HashMap;
+
 
 #[derive(Debug, Clone, PartialEq, Copy)]
 pub enum TypeDirection {
@@ -41,6 +43,8 @@ pub struct GameData {
     pub block_up: bool,
     pub block_down: bool,
     pub actual_direction: TypeDirection,
+    pub block_map: HashMap<String, bool>, 
+
 }
 
 /// Crea una nueva instancia de `GameData` con los datos especificados.
@@ -68,6 +72,11 @@ impl GameData {
         block_up: bool,
         actual_direction: TypeDirection,
     ) -> Self {
+        let mut block_map = HashMap::new();
+        block_map.insert("Down".to_string(), false);
+        block_map.insert("Left".to_string(), false);
+        block_map.insert("Right".to_string(), false);
+        block_map.insert("Up".to_string(), false);
         GameData {
             bombs,
             enemies,
@@ -80,6 +89,7 @@ impl GameData {
             block_right,
             block_up,
             actual_direction,
+            block_map,
         }
     }
 
@@ -167,8 +177,9 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-
-                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_down {
+                let Some(value) = game_data.block_map.get_mut("Down")else { todo!() };
+                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                   // *value = false;
                     break;
                 }
             } else {
@@ -177,7 +188,11 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data.block_down = false;
+        //game_data.block_down = false;
+        if let Some(value) = game_data.block_map.get_mut("Down") {
+            *value = false;
+        }
+        
     }
 
     ///  aplica el efecto de una bomba en las cuatro direcciones (arriba, abajo, izquierda y derecha) desde la posición especificada.
@@ -206,6 +221,7 @@ impl GameData {
             tipo_bomb,
             copy_bomb,
         );
+        
         self.actual_direction = TypeDirection::Up;
         Self::move_up(
             self,
@@ -286,6 +302,7 @@ impl GameData {
             TypeDirection::Left => game_data.block_left = true,
             _ => unreachable!(),
         }
+
     }
 
     ///  maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
@@ -309,16 +326,40 @@ impl GameData {
         bomb: &Bomb,
     ) {
         Self::block_direction(game_data.actual_direction, game_data);
+        if game_data.actual_direction == TypeDirection:: Down {
+            if let Some(value) = game_data.block_map.get_mut("Down") {
+                *value = true;
+            }
+        }
+        if game_data.actual_direction == TypeDirection:: Up {
+            if let Some(value) = game_data.block_map.get_mut("Up") {
+                *value = true;
+            }
+        }
+        if game_data.actual_direction == TypeDirection:: Left {
+            if let Some(value) = game_data.block_map.get_mut("Left") {
+                *value = true;
+            }
+        }
+        if game_data.actual_direction == TypeDirection:: Right {
+            if let Some(value) = game_data.block_map.get_mut("Right") {
+                *value = true;
+            }
+        }
         if object == DETOUR_UP {
+            game_data.actual_direction = TypeDirection::Up;
             Self::move_up(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == DETOUR_DOWN {
+            game_data.actual_direction = TypeDirection::Down;
             Self::move_down(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == DETOUR_RIGHT {
+            game_data.actual_direction = TypeDirection::Right;
             Self::move_right(game_data, new_x, y, iterations_pending, typee, bomb);
         }
         if object == DETOUR_LEFT {
+            game_data.actual_direction = TypeDirection::Left;
             Self::move_left(game_data, new_x, y, iterations_pending, typee, bomb);
         }
     }
@@ -421,17 +462,22 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-
-                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_up {
+                let Some(value) = game_data.block_map.get_mut("Up")else { todo!() };
+                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                    *value = false;
                     break;
                 }
+                
             } else {
                 break;
             }
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data.block_up = false;
+       // game_data.block_up = false;
+        if let Some(value) = game_data.block_map.get_mut("Up") {
+        *value = false;
+        }
     }
 
     /// Mueve al jugador hacia la derecha en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
@@ -463,17 +509,22 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-
-                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_right {
+                let Some(value) = game_data.block_map.get_mut("Right")else { todo!() };
+                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                    //*value = false;
                     break;
                 }
+                
             } else {
                 break;
             }
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data.block_right = false;
+       // game_data.block_right = false;
+       if let Some(value) = game_data.block_map.get_mut("Right") {
+        *value = false;
+        }
     }
 
     /// Mueve al jugador hacia la izquierda en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
@@ -505,17 +556,22 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-
-                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_left {
+                let Some(value) = game_data.block_map.get_mut("Left")else { todo!() };
+                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                    *value = false;
                     break;
                 }
+               
             } else {
                 break;
             }
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
-        game_data.block_left = false;
+       // game_data.block_left = false;
+       if let Some(value) = game_data.block_map.get_mut("Left") {
+        *value = false;
+        }
     }
 
     /// Imprime el laberinto en la consola.

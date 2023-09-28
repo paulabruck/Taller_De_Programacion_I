@@ -8,6 +8,7 @@ use crate::game_data::TypeDirection;
 use crate::utils::constantes::*;
 use crate::utils::errores::error_objeto_invalido;
 use std::error::Error;
+use std::collections::HashMap;
 
 /// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
 ///
@@ -145,6 +146,11 @@ fn create_game_data_internal(
     detours: Vec<Detour>,
     maze: Vec<Vec<String>>,
 ) -> GameData {
+    let mut block_map = HashMap::new();
+    block_map.insert("Down".to_string(), false);
+    block_map.insert("Left".to_string(), false);
+    block_map.insert("Right".to_string(), false);
+    block_map.insert("Up".to_string(), false);
     GameData {
         bombs,
         enemies,
@@ -157,6 +163,7 @@ fn create_game_data_internal(
         block_down: false,
         block_up: false,
         actual_direction: TypeDirection::None,
+        block_map, 
     }
 }
 
