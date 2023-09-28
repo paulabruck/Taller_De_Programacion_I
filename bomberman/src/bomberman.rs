@@ -7,6 +7,7 @@ use crate::game_data::GameData;
 use crate::utils::constantes::*;
 use crate::utils::errores::error_objeto_invalido;
 use std::error::Error;
+use crate::game_data::TypeDirection;
 
 /// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
 ///
@@ -114,7 +115,6 @@ pub fn process_character(
     detours: &mut Vec<Detour>,
 ) -> Result<(), Box<dyn Error>> {
     if character.starts_with(BOMBA_NORMAL) || character.starts_with(BOMBA_TRASPASO) {
-        
         process_bomb(&maze, character, position, bombs);
         Ok(())
     } else if character.starts_with(ENEMY) {
@@ -157,6 +157,12 @@ fn create_game_data_internal(
         maze,
         wall_interceps: false,
         rock_interceps: false,
+        block_left: false,
+        block_right: false,
+        block_down: false,
+        block_up: false,
+        actual_direction: TypeDirection::None,
+
     }
 }
 

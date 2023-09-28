@@ -7,6 +7,14 @@ use crate::utils::constantes::*;
 use crate::utils::errores::error_objetos_invalidos;
 use std::error::Error;
 
+#[derive(Debug, Clone, PartialEq, Copy)]
+pub enum TypeDirection {
+    Left,
+    Right,
+    Up,
+    Down,
+    None,
+}
 /// `GameData` es una estructura que almacena los datos del juego, incluyendo información
 /// sobre las bombas, enemigos, desvíos, el laberinto y propiedades de intercepción.
 ///
@@ -27,6 +35,13 @@ pub struct GameData {
     pub wall_interceps: bool,
     /// Indica si una roca esta interceptando una rafaga 
     pub rock_interceps: bool,
+
+    pub block_left: bool,
+    pub block_right: bool,
+    pub block_up: bool,
+    pub block_down: bool,
+    pub actual_direction: TypeDirection,
+
 }
 
 /// Crea una nueva instancia de `GameData` con los datos especificados.
@@ -48,6 +63,11 @@ impl GameData {
         maze: Vec<Vec<String>>,
         wall_interceps: bool,
         rock_interceps: bool,
+        block_down: bool,
+        block_left: bool,
+        block_right: bool,
+        block_up: bool,
+        actual_direction: TypeDirection,
     ) -> Self {
         GameData {
             bombs,
@@ -56,6 +76,11 @@ impl GameData {
             maze,
             wall_interceps,
             rock_interceps,
+            block_down,
+            block_left,
+            block_right,
+            block_up,
+            actual_direction,
         }
     }
 
@@ -143,7 +168,7 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps || game_data.rock_interceps {
+                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_down {
                     break;
                 }
             } else {
@@ -152,6 +177,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
+        game_data.block_down = false;
+        
     }
     
 
@@ -172,7 +199,7 @@ impl GameData {
         tipo_bomb: TypeBomb,
         copy_bomb: &Bomb,
     ) {
-        
+        self.actual_direction = TypeDirection:: Down;
         Self::move_down(
             self,
             coordinate_x,
@@ -181,6 +208,7 @@ impl GameData {
             tipo_bomb,
             copy_bomb,
         );
+        self.actual_direction = TypeDirection:: Up;
         Self::move_up(
             self,
             coordinate_x,
@@ -189,6 +217,7 @@ impl GameData {
             tipo_bomb,
             copy_bomb,
         );
+        self.actual_direction = TypeDirection:: Right;
         Self::move_right(
             self,
             coordinate_x,
@@ -197,6 +226,7 @@ impl GameData {
             tipo_bomb,
             copy_bomb,
         );
+        self.actual_direction = TypeDirection:: Left;
         Self::move_left(
             self,
             coordinate_x,
@@ -238,6 +268,26 @@ impl GameData {
             Err(Box::new(error_objetos_invalidos()))
         }
     }
+
+    /// Bloquea la dirección especificada en el juego.
+    ///
+    /// Esto establece una dirección bloqueada en el estado del juego, lo que significa
+    /// que el movimiento en esa dirección no está permitido.
+    ///
+    /// # Argumentos
+    ///
+    /// - `direction`: La dirección que se debe bloquear (por ejemplo, TypeDirection::Down).
+    /// - `game_data`: Una referencia mutable a los datos del juego en los que se debe realizar el bloqueo.
+    ///
+    pub fn block_direction(direction: TypeDirection, game_data: &mut GameData) {
+        match direction {
+            TypeDirection::Down => game_data.block_down = true,
+            TypeDirection::Up => game_data.block_up = true,
+            TypeDirection::Right => game_data.block_right = true,
+            TypeDirection::Left => game_data.block_left = true,
+            _ => unreachable!(),
+        }
+    }
     
     ///  maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
     ///
@@ -259,6 +309,7 @@ impl GameData {
         iterations_pending: usize,
         bomb: &Bomb,
     ) {
+        Self::block_direction(game_data.actual_direction,  game_data);
         if object == DETOUR_UP {
             Self::move_up(game_data, new_x, y, iterations_pending, typee, bomb);
         }
@@ -284,10 +335,6 @@ impl GameData {
     /// * `iterations_pending`: El número de iteraciones pendientes después de enfrentarse al enemigo.
     /// * `bomb`: Una referencia a la bomba utilizada para enfrentarse al enemigo.
     pub fn handle_enemy(game_data: &mut GameData, new_x: usize, y: usize, bomb: &Bomb) {
-        print!("holaaa ");
-        print!(" {}", new_x);
-        print!(" {}", y);
-
         if let Some(enemy) = game_data
             .enemies
             .iter_mut()
@@ -375,7 +422,7 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps || game_data.rock_interceps {
+                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_up  {
                     break;
                 }
             } else {
@@ -384,6 +431,8 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
+        game_data.block_up = false;
+        
     }
     
 
@@ -416,7 +465,7 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps || game_data.rock_interceps {
+                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_right{
                     break;
                 }
             } else {
@@ -425,6 +474,7 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
+        game_data.block_right = false;
     }
     
 
@@ -457,7 +507,7 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-                if game_data.wall_interceps || game_data.rock_interceps {
+                if game_data.wall_interceps || game_data.rock_interceps || game_data.block_left {
                     break;
                 }
             } else {
@@ -466,6 +516,7 @@ impl GameData {
         }
         game_data.wall_interceps = false;
         game_data.rock_interceps = false;
+        game_data.block_left = false;
     }
     
 
@@ -517,6 +568,11 @@ mod tests {
             maze.clone(),
             false,
             false,
+            false,
+            false,
+            false,
+            false,
+            TypeDirection:: None,
         );
 
         assert_eq!(game_data.bombs, bombs);
@@ -547,6 +603,11 @@ mod tests {
             maze: vec![],
             wall_interceps: false,
             rock_interceps: false,
+            block_down: false,
+            block_left: false,
+            block_right: false,
+            block_up: false,
+            actual_direction: TypeDirection::None,
         };
 
         // Prueba la función `find_bomb`
@@ -579,6 +640,11 @@ mod tests {
             maze: vec![],
             wall_interceps: false,
             rock_interceps: false,
+            block_down: false,
+            block_left: false,
+            block_right: false,
+            block_up: false,
+            actual_direction: TypeDirection::None,
         };
 
         // Verifica que haya tres bombs inicialmente
@@ -613,6 +679,11 @@ mod tests {
             vec![vec!["_".to_string(); 5]; 5], // Laberinto de 5x5 lleno de "_"
             false,
             false,
+            false,
+            false,
+            false,
+            false,
+            TypeDirection:: None,
         );
 
         // Validamos el maze
