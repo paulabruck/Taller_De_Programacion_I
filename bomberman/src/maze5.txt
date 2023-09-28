@@ -1,7 +1,1 @@
-B6 _ _ _ _ F1 DL
-DR F1 _ W _ W B8
-_ _ R R _ _ _
-_ W _ W _ W _
-_ _ _ _ DU F1 _
-R W _ W _ W _
-_ _ _ _ _ _ _
+ERROR: [problema al crear los objetos del laberinto]

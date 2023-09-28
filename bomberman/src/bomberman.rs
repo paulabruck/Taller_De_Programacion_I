@@ -4,10 +4,10 @@ use crate::detour::Detour;
 use crate::detour::TypeDetour;
 use crate::enemy::Enemy;
 use crate::game_data::GameData;
+use crate::game_data::TypeDirection;
 use crate::utils::constantes::*;
 use crate::utils::errores::error_objeto_invalido;
 use std::error::Error;
-use crate::game_data::TypeDirection;
 
 /// Procesa un carácter como una bomba y agrega una instancia de `Bomb` al vector `bombs`.
 ///
@@ -23,12 +23,11 @@ pub fn process_bomb(
     position: &mut (usize, usize),
     bombs: &mut Vec<Bomb>,
 ) -> Result<(), Box<dyn Error>> {
-    
     if position.0 < maze.len() && position.1 < maze[position.0].len() {
-        if let Some(character2) = maze[position.0][position.1].chars().rev().next() {
+        if let Some(character2) = maze[position.0][position.1].chars().next_back() {
             if let Some(digit) = character2.to_digit(10) {
                 let value_as_usize = digit as usize;
-                let bomb = if character.starts_with(BOMBA_NORMAL ) {
+                let bomb = if character.starts_with(BOMBA_NORMAL) {
                     Bomb::new((position.0, position.1), TypeBomb::Normal, value_as_usize)
                 } else {
                     Bomb::new((position.0, position.1), TypeBomb::Traspaso, value_as_usize)
@@ -40,8 +39,6 @@ pub fn process_bomb(
     Ok(())
 }
 
-
-
 /// Procesa un carácter como un enemigo y agrega una instancia de `Enemy` al vector `enemies`.
 ///
 /// # Argumentos
@@ -51,20 +48,18 @@ pub fn process_bomb(
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `enemies`: Referencia mutable al vector de enemigos.
 pub fn process_enemy(
-    maze: &Vec<Vec<String>>, // Cambia el parámetro a la matriz maze
+    maze: &[Vec<String>], // Cambia el parámetro a la matriz maze
     position: &mut (usize, usize),
     enemies: &mut Vec<Enemy>,
 ) {
-    if let Some(character2) = maze[position.0][position.1].chars().rev().next() {
+    if let Some(character2) = maze[position.0][position.1].chars().next_back() {
         if let Some(digit) = character2.to_digit(10) {
             let value_as_usize = digit as usize;
             let enemy = Enemy::new((position.0, position.1), value_as_usize);
             enemies.push(enemy);
         }
     }
-    
 }
-
 
 /// Procesa un carácter como un desvío y agrega una instancia de `Detour` al vector `detours`.
 ///
@@ -74,7 +69,7 @@ pub fn process_enemy(
 /// - `position`: Referencia mutable a la posición actual en el laberinto.
 /// - `detours`: Referencia mutable al vector de desvíos.
 pub fn process_detour(
-    maze: &Vec<Vec<String>>, // Cambia el parámetro a la matriz maze
+    maze: &[Vec<String>], // Cambia el parámetro a la matriz maze
     position: &mut (usize, usize),
     detours: &mut Vec<Detour>,
 ) {
@@ -90,7 +85,6 @@ pub fn process_detour(
         detours.push(detour);
     }
 }
-
 
 /// Procesa un carácter como un objeto en el laberinto y realiza las acciones correspondientes.
 ///
@@ -115,7 +109,7 @@ pub fn process_character(
     detours: &mut Vec<Detour>,
 ) -> Result<(), Box<dyn Error>> {
     if character.starts_with(BOMBA_NORMAL) || character.starts_with(BOMBA_TRASPASO) {
-        process_bomb(&maze, character, position, bombs);
+        let _ = process_bomb(&maze, character, position, bombs);
         Ok(())
     } else if character.starts_with(ENEMY) {
         process_enemy(&maze, position, enemies);
@@ -123,14 +117,15 @@ pub fn process_character(
     } else if character.starts_with(DETOUR) {
         process_detour(&maze, position, detours);
         Ok(())
-    } else if character.starts_with(WALL) || character.starts_with(ROCK) || character.starts_with(VACIO_) {
+    } else if character.starts_with(WALL)
+        || character.starts_with(ROCK)
+        || character.starts_with(VACIO_)
+    {
         Ok(())
     } else {
         Err(Box::new(error_objeto_invalido()))
     }
 }
-
-
 
 /// Crea una instancia de `GameData` internamente utilizando los vectores de objetos y el laberinto.
 ///
@@ -162,7 +157,6 @@ fn create_game_data_internal(
         block_down: false,
         block_up: false,
         actual_direction: TypeDirection::None,
-
     }
 }
 
@@ -191,27 +185,19 @@ pub fn create_objects(
     // Recorre la matriz maze en lugar de los caracteres del archivo
     for (row_index, row) in maze.iter().enumerate() {
         for (col_index, character) in row.iter().enumerate() {
-            // if character == &SALTO_LINEA {
-                //     position.1 = 0;
-                //     position.0 += 1;
-                // }
-                // if character == &ESPACIO {
-                    //     position.1 += 1;
-                    // }
-                    if character == &SALTO_LINEA || character == &VACIO_ {
-                        continue;
-                    }
-                    position.0 = row_index;
-                    position.1 = col_index;
-                    if let Err(_error) = process_character(
-                        character,
-                        maze.clone(),
-                        &mut position,
-                        &mut bombs,
-                        &mut enemies,
-                        &mut detours,
-                    ) {
-                
+            if character == SALTO_LINEA || character == VACIO_ {
+                continue;
+            }
+            position.0 = row_index;
+            position.1 = col_index;
+            if let Err(_error) = process_character(
+                character,
+                maze.clone(),
+                &mut position,
+                &mut bombs,
+                &mut enemies,
+                &mut detours,
+            ) {
                 return Err(Box::new(error_objeto_invalido()));
             }
         }
@@ -223,14 +209,12 @@ pub fn create_objects(
         detours.clone(),
         maze.clone(),
     );
-    for enemy in enemies {
-        println!("{}", format!("{:?}", enemy));
-    }
+
     if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
         eprintln!("Error: {}", error);
         return Err(Box::new(error_objeto_invalido()));
     }
-   
+
     Ok(game_data)
 }
 
@@ -266,7 +250,6 @@ pub fn check_objects(
         )
     }
     if object.starts_with(ENEMY) {
-        
         GameData::handle_enemy(game_data, new_x, y, bomb)
     }
     if object == ROCK_ && typee == TypeBomb::Normal {

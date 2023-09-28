@@ -34,7 +34,7 @@ fn test_create_objects() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let _result = match create_objects( 0, 0, maze) {
+    let _result = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
@@ -50,7 +50,7 @@ fn test_create_objects_invalid_empty_maze() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let _result = match create_objects( 0, 0, maze) {
+    let _result = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(true, "Los objetos no se pudieron crear correctamente"),
     };
@@ -66,7 +66,7 @@ fn test_create_objects_invalid_maze() {
     };
     let maze = parse_maze(&file_contents);
     // Prueba la función create_objects
-    let _result = match create_objects( 0, 0, maze) {
+    let _result = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(true, "Los objetos no se pudieron crear correctamente"),
     };
@@ -81,7 +81,7 @@ fn test_detonar_bomba_invalid_location() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 0, 0, maze) {
+    let mut game_data = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(true, "Los objetos no se pudieron crear correctamente"),
     };
@@ -102,7 +102,7 @@ fn test_detonate_bomb() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 0, 0, maze) {
+    let mut game_data = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
@@ -128,7 +128,7 @@ fn test_interaction_with_enemies() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 4, 0, maze) {
+    let mut game_data = match create_objects(4, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
@@ -155,7 +155,7 @@ fn test_detonar_bomba_enemy_location() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 0, 0, maze) {
+    let mut game_data = match create_objects(0, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
@@ -176,7 +176,7 @@ fn test_detonar_bomba_objects_location() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 4, 0, maze) {
+    let mut game_data = match create_objects(4, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };
@@ -199,7 +199,7 @@ fn test_detonar_bomba_objects_location2() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 4, 0, maze) {
+    let mut game_data = match create_objects(4, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(true, "Los objetos no se pudieron crear correctamente"),
     };
@@ -223,7 +223,7 @@ fn test_detonar_bomba_detour_location() {
     };
     let maze = parse_maze(&file_contents);
 
-    let mut game_data = match create_objects( 4, 0, maze) {
+    let mut game_data = match create_objects(4, 0, maze) {
         Ok(data) => data,
         Err(_error) => return assert!(false, "Los objetos no se pudieron crear correctamente"),
     };

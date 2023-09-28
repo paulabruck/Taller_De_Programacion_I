@@ -37,7 +37,7 @@ fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
 
 fn main() -> Result<(), Box<dyn Error>> {
     let (input_file, output_directory, coordinate_x, coordinate_y) = parse_arguments()?;
-    let mut file_contents = match read_file(&input_file) {
+    let file_contents = match read_file(&input_file) {
         Ok(contents) => contents,
         Err(error) => {
             eprintln!("Error al leer el archivo: {}", error);

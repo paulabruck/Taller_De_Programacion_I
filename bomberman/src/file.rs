@@ -3,8 +3,8 @@ use std::error::Error;
 use std::fs::read_to_string;
 use std::fs::File;
 use std::io::Write;
-use std::path::PathBuf;
 use std::path::Path;
+use std::path::PathBuf;
 
 /// Lee el contenido de un archivo y lo devuelve como una cadena.
 ///
@@ -52,7 +52,11 @@ pub fn parse_maze(file_contents: &str) -> Vec<Vec<String>> {
 /// Este método puede devolver un error si ocurren problemas al escribir en el archivo.
 ///
 
-pub fn save_maze_in_file(maze: &Vec<Vec<String>>, folder: &str, input_path: &str) -> Result<(), std::io::Error> {
+pub fn save_maze_in_file(
+    maze: &Vec<Vec<String>>,
+    folder: &str,
+    input_path: &str,
+) -> Result<(), std::io::Error> {
     // Obtener el nombre del archivo a partir de la ruta de entrada
     let input_file_name = Path::new(input_path)
         .file_name()
@@ -65,13 +69,13 @@ pub fn save_maze_in_file(maze: &Vec<Vec<String>>, folder: &str, input_path: &str
     destination_path.push(input_file_name);
 
     let mut file = File::create(destination_path)?;
-    
+
     for row in maze {
         let row_str = row.join(" "); // Unir elementos de la fila con un espacio en blanco
         file.write_all(row_str.as_bytes())?;
         file.write_all(b"\n")?; // Salto de línea para separar las filas
     }
-    
+
     Ok(())
 }
 /// Escribe un mensaje de error en un archivo ubicado en la ruta especificada.
@@ -85,7 +89,11 @@ pub fn save_maze_in_file(maze: &Vec<Vec<String>>, folder: &str, input_path: &str
 ///
 /// Este método puede devolver un error si ocurren problemas al escribir en el archivo.
 ///
-pub fn write_error_in_file(mensaje_error: &str, folder: &str, input_path: &str) -> Result<(), std::io::Error> {
+pub fn write_error_in_file(
+    mensaje_error: &str,
+    folder: &str,
+    input_path: &str,
+) -> Result<(), std::io::Error> {
     // Obtener el nombre del archivo a partir de la ruta de entrada
     let input_file_name = Path::new(input_path)
         .file_name()
