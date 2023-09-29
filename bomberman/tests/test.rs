@@ -1,4 +1,4 @@
-use bomberman::bomberman::{create_objects, detonar_bomb};
+use bomberman::game_data::{create_objects, detonar_bomb};
 use bomberman::file::{parse_maze, read_file, save_maze_in_file};
 
 /// Prueba la función `read_file` para asegurarse de que puede leer un archivo correctamente.
@@ -28,7 +28,7 @@ fn test_save_maze_in_file() {
 #[test]
 fn test_create_objects() {
     // Crea un maze de prueba
-    let mut file_contents = match read_file("./src/maze.txt") {
+    let file_contents = match read_file("./src/maze.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -44,7 +44,7 @@ fn test_create_objects() {
 #[test]
 fn test_create_objects_invalid_empty_maze() {
     // Crea un maze de prueba
-    let mut file_contents = match read_file("./src/maze_invalido.txt") {
+    let file_contents = match read_file("./src/maze_invalido.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(true, "El archivo no se pudo leer correctamente"),
     };
@@ -60,7 +60,7 @@ fn test_create_objects_invalid_empty_maze() {
 #[test]
 fn test_create_objects_invalid_maze() {
     // Crea un maze de prueba
-    let mut file_contents = match read_file("./src/maze_invalido1.txt") {
+    let file_contents = match read_file("./src/maze_invalido1.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(true, "El archivo no se pudo leer correctamente"),
     };
@@ -75,7 +75,7 @@ fn test_create_objects_invalid_maze() {
 /// Prueba la función `detonar_bomb` en una ubicación inválida.
 #[test]
 fn test_detonar_bomba_invalid_location() {
-    let mut file_contents = match read_file("./src/maze2.txt") {
+    let file_contents = match read_file("./src/maze2.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -96,7 +96,7 @@ fn test_detonar_bomba_invalid_location() {
 #[test]
 fn test_detonate_bomb() {
     // Crea un maze de prueba con una bomba colocada
-    let mut file_contents = match read_file("./src/maze.txt") {
+    let file_contents = match read_file("./src/maze.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -122,7 +122,7 @@ fn test_detonate_bomb() {
 #[test]
 fn test_interaction_with_enemies() {
     // Crea un maze de prueba con enemigos cercanos a una bomba
-    let mut file_contents = match read_file("./src/maze2.txt") {
+    let file_contents = match read_file("./src/maze2.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -149,7 +149,7 @@ fn test_interaction_with_enemies() {
 /// Prueba la función `detonar_bomb` en una ubicación con enemigo.
 #[test]
 fn test_detonar_bomba_enemy_location() {
-    let mut file_contents = match read_file("./src/maze.txt") {
+    let file_contents = match read_file("./src/maze.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -170,7 +170,7 @@ fn test_detonar_bomba_enemy_location() {
 /// Prueba la función `detonar_bomb` en una ubicación con objetos destructibles.
 #[test]
 fn test_detonar_bomba_objects_location() {
-    let mut file_contents = match read_file("./src/maze2.txt") {
+    let file_contents = match read_file("./src/maze2.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -193,7 +193,7 @@ fn test_detonar_bomba_objects_location() {
 /// Prueba la función `detonar_bomb` en una ubicación con objetos destructibles.
 #[test]
 fn test_detonar_bomba_objects_location2() {
-    let mut file_contents = match read_file("./src/maze3.txt") {
+    let file_contents = match read_file("./src/maze3.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };
@@ -217,7 +217,7 @@ fn test_detonar_bomba_objects_location2() {
 /// Prueba la función `detonar_bomb` en una ubicación con desvío.
 #[test]
 fn test_detonar_bomba_detour_location() {
-    let mut file_contents = match read_file("./src/maze0.txt") {
+    let file_contents = match read_file("./src/maze0.txt") {
         Ok(resultado) => resultado,
         Err(_error) => return assert!(false, "El archivo no se pudo leer correctamente"),
     };

@@ -1,10 +1,10 @@
-use bomberman::bomberman::{create_objects, detonar_bomb};
 use bomberman::file::{parse_maze, read_file, save_maze_in_file, write_error_in_file};
 use bomberman::game_data::GameData;
 use bomberman::utils::constantes::*;
 use bomberman::utils::errores::{error_objetos_invalidos, error_path_invalido};
 use std::env;
 use std::error::Error;
+use bomberman::game_data::{detonar_bomb, create_objects};
 
 /// Parsea los argumentos de línea de comandos.
 ///

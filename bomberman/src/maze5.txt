@@ -1,5 +1,5 @@
-_ R _ _ _ F1 F1
-DR _ _ W _ W DL
+S4 R F1 _ _ F1 F1
+DR _ F1 W _ W DL
 F1 F1 R R _ _ _
 _ W _ W _ W _
 _ _ _ _ DU F1 _
