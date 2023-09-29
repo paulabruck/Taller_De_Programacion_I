@@ -34,14 +34,7 @@ pub struct GameData {
     /// Matriz que representa el laberinto del juego.
     pub maze: Vec<Vec<String>>,
     /// Indica si una pared esta interceptando una rafaga
-    pub wall_interceps: bool,
-    /// Indica si una roca esta interceptando una rafaga
-    pub rock_interceps: bool,
-
-    pub block_left: bool,
-    pub block_right: bool,
-    pub block_up: bool,
-    pub block_down: bool,
+    pub interceps_map: HashMap<String, bool>, 
     pub actual_direction: TypeDirection,
     pub block_map: HashMap<String, bool>, 
 
@@ -64,12 +57,6 @@ impl GameData {
         enemies: Vec<Enemy>,
         detours: Vec<Detour>,
         maze: Vec<Vec<String>>,
-        wall_interceps: bool,
-        rock_interceps: bool,
-        block_down: bool,
-        block_left: bool,
-        block_right: bool,
-        block_up: bool,
         actual_direction: TypeDirection,
     ) -> Self {
         let mut block_map = HashMap::new();
@@ -77,19 +64,18 @@ impl GameData {
         block_map.insert("Left".to_string(), false);
         block_map.insert("Right".to_string(), false);
         block_map.insert("Up".to_string(), false);
+        let mut interceps_map = HashMap::new();
+        interceps_map.insert("Wall".to_string(), false);
+        interceps_map.insert("Rock".to_string(), false);
+       
         GameData {
             bombs,
             enemies,
             detours,
             maze,
-            wall_interceps,
-            rock_interceps,
-            block_down,
-            block_left,
-            block_right,
-            block_up,
             actual_direction,
             block_map,
+            interceps_map,
         }
     }
 
@@ -150,50 +136,6 @@ impl GameData {
         *game_data = game_data_clone;
     }
 
-    ///  mueve a la rafaga hacia abajo en el laberinto y aplica efectos de bombas y obstáculos en su camino.
-    ///
-    /// # Argumentos
-    ///
-    /// * `game_data`: Una referencia mutable a los datos del juego.
-    /// * `x`: La coordenada X actual de la rafaga.
-    /// * `y`: La coordenada Y actual de la rafaga.
-    /// * `reach`: La distancia máxima que la rafaga puede moverse hacia abajo.
-    /// * `typee`: El tipo de bomba que se está utilizando.
-    /// * `bomb`: Una referencia a la bomba que se está utilizando.
-    ///
-    /// # Devolución
-    ///
-    /// Devuelve una referencia mutable a los datos del juego actualizados después de mover a la rafaga.
-    pub fn move_down(
-        game_data: &mut GameData,
-        x: usize,
-        y: usize,
-        reach: usize,
-        typee: TypeBomb,
-        bomb: &Bomb,
-    ) {
-        for dx in 1..=reach {
-            let new_x = x.wrapping_add(dx);
-            let iterations_pending = reach - dx;
-            if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
-                Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                let Some(value) = game_data.block_map.get_mut("Down")else { todo!() };
-                if game_data.wall_interceps || game_data.rock_interceps || *value {
-                   // *value = false;
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-        game_data.wall_interceps = false;
-        game_data.rock_interceps = false;
-        //game_data.block_down = false;
-        if let Some(value) = game_data.block_map.get_mut("Down") {
-            *value = false;
-        }
-        
-    }
 
     ///  aplica el efecto de una bomba en las cuatro direcciones (arriba, abajo, izquierda y derecha) desde la posición especificada.
     ///
@@ -284,26 +226,7 @@ impl GameData {
         }
     }
 
-    /// Bloquea la dirección especificada en el juego.
-    ///
-    /// Esto establece una dirección bloqueada en el estado del juego, lo que significa
-    /// que el movimiento en esa dirección no está permitido.
-    ///
-    /// # Argumentos
-    ///
-    /// - `direction`: La dirección que se debe bloquear (por ejemplo, TypeDirection::Down).
-    /// - `game_data`: Una referencia mutable a los datos del juego en los que se debe realizar el bloqueo.
-    ///
-    pub fn block_direction(direction: TypeDirection, game_data: &mut GameData) {
-        match direction {
-            TypeDirection::Down => game_data.block_down = true,
-            TypeDirection::Up => game_data.block_up = true,
-            TypeDirection::Right => game_data.block_right = true,
-            TypeDirection::Left => game_data.block_left = true,
-            _ => unreachable!(),
-        }
-
-    }
+   
 
     ///  maneja una situación en la que se encuentra un objeto de desvío en el laberinto.
     ///
@@ -325,7 +248,7 @@ impl GameData {
         iterations_pending: usize,
         bomb: &Bomb,
     ) {
-        Self::block_direction(game_data.actual_direction, game_data);
+      
         if game_data.actual_direction == TypeDirection:: Down {
             if let Some(value) = game_data.block_map.get_mut("Down") {
                 *value = true;
@@ -409,7 +332,8 @@ impl GameData {
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
     pub fn handle_rock(game_data: &mut GameData) {
-        game_data.rock_interceps = true;
+        let Some(value) = game_data.interceps_map.get_mut("Rock")else { todo!() };
+        *value = true;
     }
 
     ///  establece la señal de que un objeto tipo "wall" ha interceptado el camino.
@@ -418,7 +342,9 @@ impl GameData {
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
     pub fn handle_wall(game_data: &mut GameData) {
-        game_data.wall_interceps = true;
+        let Some(value) = game_data.interceps_map.get_mut("Wall")else { todo!() };
+        *value = true;
+       
     }
 
     ///  maneja una situación en la que se encuentra una bomba en el laberinto.
@@ -432,6 +358,61 @@ impl GameData {
     pub fn handle_bomb(game_data: &mut GameData, _object: &str, new_x: usize, y: usize) {
         let _ = detonar_bomb(game_data, new_x, y);
     }
+    ///  mueve a la rafaga hacia abajo en el laberinto y aplica efectos de bombas y obstáculos en su camino.
+    ///
+    /// # Argumentos
+    ///
+    /// * `game_data`: Una referencia mutable a los datos del juego.
+    /// * `x`: La coordenada X actual de la rafaga.
+    /// * `y`: La coordenada Y actual de la rafaga.
+    /// * `reach`: La distancia máxima que la rafaga puede moverse hacia abajo.
+    /// * `typee`: El tipo de bomba que se está utilizando.
+    /// * `bomb`: Una referencia a la bomba que se está utilizando.
+    ///
+    /// # Devolución
+    ///
+    /// Devuelve una referencia mutable a los datos del juego actualizados después de mover a la rafaga.
+    pub fn move_down(
+        game_data: &mut GameData,
+        x: usize,
+        y: usize,
+        reach: usize,
+        typee: TypeBomb,
+        bomb: &Bomb,
+    ) {
+        for dx in 1..=reach {
+            let new_x = x.wrapping_add(dx);
+            let iterations_pending = reach - dx;
+            if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
+                Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
+                let Some(value) = game_data.block_map.get_mut("Down")else { todo!() };
+                let mut wall = false;
+                let mut rock = false;
+                if let Some(w) = game_data.interceps_map.get_mut("Wall") {
+                    wall = *w;
+                }
+                
+                if let Some(r) = game_data.interceps_map.get_mut("Rock") {
+                    rock = *r;
+                }
+                if wall || rock || *value {
+                    *value = false;
+                    break;
+                }                
+            } else {
+                break;
+            }
+        }
+      
+        if let Some(value) = game_data.block_map.get_mut("Down") {
+            *value = false;
+        }
+        for (_, value) in game_data.interceps_map.iter_mut() {
+            *value = false;
+        }
+        
+    }
+
 
     /// Mueve al jugador hacia arriba en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
@@ -463,20 +444,31 @@ impl GameData {
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
                 let Some(value) = game_data.block_map.get_mut("Up")else { todo!() };
-                if game_data.wall_interceps || game_data.rock_interceps || *value {
-                    *value = false;
-                    break;
+                let mut wall = false;
+                let mut rock = false;
+                if let Some(w) = game_data.interceps_map.get_mut("Wall") {
+                    wall = *w;
                 }
                 
+                if let Some(r) = game_data.interceps_map.get_mut("Rock") {
+                    rock = *r;
+                }
+                if wall || rock || *value {
+                    //*wall = false;
+                    //*rock = false;
+                    //*value = false;
+                    break;
+                }                
             } else {
                 break;
             }
         }
-        game_data.wall_interceps = false;
-        game_data.rock_interceps = false;
        // game_data.block_up = false;
         if let Some(value) = game_data.block_map.get_mut("Up") {
         *value = false;
+        }
+        for (_, value) in game_data.interceps_map.iter_mut() {
+            *value = false;
         }
     }
 
@@ -510,7 +502,18 @@ impl GameData {
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
                 let Some(value) = game_data.block_map.get_mut("Right")else { todo!() };
-                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                let mut wall = false;
+                let mut rock = false;
+                if let Some(w) = game_data.interceps_map.get_mut("Wall") {
+                    wall = *w;
+                }
+                
+                if let Some(r) = game_data.interceps_map.get_mut("Rock") {
+                    rock = *r;
+                }
+                if wall || rock || *value {
+                    //*wall = false;
+                    //*rock = false;
                     //*value = false;
                     break;
                 }
@@ -519,11 +522,12 @@ impl GameData {
                 break;
             }
         }
-        game_data.wall_interceps = false;
-        game_data.rock_interceps = false;
        // game_data.block_right = false;
        if let Some(value) = game_data.block_map.get_mut("Right") {
         *value = false;
+        }
+        for (_, value) in game_data.interceps_map.iter_mut() {
+            *value = false;
         }
     }
 
@@ -557,8 +561,20 @@ impl GameData {
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
                 let Some(value) = game_data.block_map.get_mut("Left")else { todo!() };
-                if game_data.wall_interceps || game_data.rock_interceps || *value {
+                let mut wall = false;
+                let mut rock = false;
+                
+                if let Some(w) = game_data.interceps_map.get_mut("Wall") {
+                    wall = *w;
+                }
+                
+                if let Some(r) = game_data.interceps_map.get_mut("Rock") {
+                    rock = *r;
+                }
+                if wall || rock || *value {
+                  //  *wall = false;
                     *value = false;
+                   // rock = false;
                     break;
                 }
                
@@ -566,11 +582,12 @@ impl GameData {
                 break;
             }
         }
-        game_data.wall_interceps = false;
-        game_data.rock_interceps = false;
        // game_data.block_left = false;
        if let Some(value) = game_data.block_map.get_mut("Left") {
         *value = false;
+        }
+        for (_, value) in game_data.interceps_map.iter_mut() {
+            *value = false;
         }
     }
 

@@ -151,19 +151,17 @@ fn create_game_data_internal(
     block_map.insert("Left".to_string(), false);
     block_map.insert("Right".to_string(), false);
     block_map.insert("Up".to_string(), false);
+    let mut interceps_map = HashMap::new();
+    interceps_map.insert("Wall".to_string(), false);
+    interceps_map.insert("Rock".to_string(), false);
     GameData {
         bombs,
         enemies,
         detours,
         maze,
-        wall_interceps: false,
-        rock_interceps: false,
-        block_left: false,
-        block_right: false,
-        block_down: false,
-        block_up: false,
         actual_direction: TypeDirection::None,
         block_map, 
+        interceps_map,
     }
 }
 

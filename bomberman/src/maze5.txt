@@ -1,6 +1,6 @@
-B4 DD F1 _ _ F1 F1
-_ DR F1 W _ W DL
-_ F1 R R _ _ _
+_ R _ _ _ F1 F1
+DR _ _ W _ W DL
+F1 F1 R R _ _ _
 _ W _ W _ W _
 _ _ _ _ DU F1 _
 R W _ W _ W _
