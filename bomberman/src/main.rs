@@ -1,10 +1,10 @@
 use bomberman::file::{parse_maze, read_file, save_maze_in_file, write_error_in_file};
 use bomberman::game_data::GameData;
+use bomberman::game_data::{create_objects, detonar_bomb};
 use bomberman::utils::constantes::*;
 use bomberman::utils::errores::{error_objetos_invalidos, error_path_invalido};
 use std::env;
 use std::error::Error;
-use bomberman::game_data::{detonar_bomb, create_objects};
 
 /// Parsea los argumentos de línea de comandos.
 ///
@@ -20,7 +20,6 @@ use bomberman::game_data::{detonar_bomb, create_objects};
 /// # Errores
 ///
 /// Esta función devuelve un `Result` que contiene una tupla con los valores parseados o un error si la cantidad de argumentos es incorrecta o si no se pueden parsear las coordenadas X e Y.
-
 fn parse_arguments() -> Result<(String, String, usize, usize), Box<dyn Error>> {
     let arguments: Vec<String> = env::args().collect();
     if arguments.len() != 5 {

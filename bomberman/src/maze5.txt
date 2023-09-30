@@ -1,7 +1,7 @@
-S4 R F1 _ _ F1 F1
-DR _ F1 W _ W DL
-F1 F1 R R _ _ _
+B6 DD F1 _ _ F1 F1
+DR F1 F1 W _ W DL
+F1 F1 R R DL _ _
 _ W _ W _ W _
-_ _ _ _ DU F1 _
+S9 _ _ _ DU F1 _
 R W _ W _ W _
 _ _ _ _ _ _ _

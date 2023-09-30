@@ -1,5 +1,5 @@
-use bomberman::game_data::{create_objects, detonar_bomb};
 use bomberman::file::{parse_maze, read_file, save_maze_in_file};
+use bomberman::game_data::{create_objects, detonar_bomb};
 
 /// Prueba la función `read_file` para asegurarse de que puede leer un archivo correctamente.
 #[test]

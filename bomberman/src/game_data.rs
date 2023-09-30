@@ -2,9 +2,9 @@ use crate::bomb::{Bomb, TypeBomb};
 use crate::detour::{Detour, TypeDetour};
 use crate::enemy::Enemy;
 use crate::utils::constantes::*;
-use crate::utils::errores::{error_objetos_invalidos, error_objeto_invalido };
-use std::error::Error;
+use crate::utils::errores::{error_objeto_invalido, error_objetos_invalidos};
 use std::collections::HashMap;
+use std::error::Error;
 
 /// Enumeración que representa las direcciones posibles en el juego.
 #[derive(Debug, Clone, PartialEq, Copy)]
@@ -44,7 +44,6 @@ pub struct GameData {
     pub block_map: HashMap<String, bool>,
 }
 
-
 /// Crea una nueva instancia de `GameData` con los datos proporcionados.
 ///
 /// # Argumentos
@@ -54,7 +53,7 @@ pub struct GameData {
 /// * `detours`: Vector que almacena los desvíos presentes en el juego.
 /// * `maze`: Matriz que representa el laberinto del juego.
 /// * `actual_direction`: Enum que representa la dirección actual del jugador.
-/// 
+///
 impl GameData {
     pub fn new(
         bombs: Vec<Bomb>,
@@ -71,7 +70,7 @@ impl GameData {
         let mut interceps_map = HashMap::new();
         interceps_map.insert("Wall".to_string(), false);
         interceps_map.insert("Rock".to_string(), false);
-       
+
         GameData {
             bombs,
             enemies,
@@ -166,7 +165,7 @@ impl GameData {
             tipo_bomb,
             copy_bomb,
         );
-        
+
         self.actual_direction = TypeDirection::Up;
         Self::move_up(
             self,
@@ -249,11 +248,8 @@ impl GameData {
         iterations_pending: usize,
         bomb: &Bomb,
     ) {
-      
-        update_block_map( game_data, "Down");
-        update_block_map( game_data, "Up");
-        update_block_map( game_data, "Left");
-        update_block_map( game_data, "Right");
+        update_block_map(game_data);
+
         if object == DETOUR_UP {
             game_data.actual_direction = TypeDirection::Up;
             Self::move_up(game_data, new_x, y, iterations_pending, typee, bomb);
@@ -317,7 +313,9 @@ impl GameData {
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
     pub fn handle_rock(game_data: &mut GameData) {
-        let Some(value) = game_data.interceps_map.get_mut("Rock")else { todo!() };
+        let Some(value) = game_data.interceps_map.get_mut("Rock") else {
+            todo!()
+        };
         *value = true;
     }
 
@@ -327,9 +325,10 @@ impl GameData {
     ///
     /// * `game_data`: Una referencia mutable a los datos del juego.
     pub fn handle_wall(game_data: &mut GameData) {
-        let Some(value) = game_data.interceps_map.get_mut("Wall")else { todo!() };
+        let Some(value) = game_data.interceps_map.get_mut("Wall") else {
+            todo!()
+        };
         *value = true;
-       
     }
 
     ///  maneja una situación en la que se encuentra una bomba en el laberinto.
@@ -371,7 +370,9 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                let Some(value) = game_data.block_map.get_mut("Down")else { todo!() };
+                let Some(value) = game_data.block_map.get_mut("Down") else {
+                    todo!()
+                };
                 let mut wall = false;
                 let mut rock = false;
                 if let Some(w) = game_data.interceps_map.get_mut("Wall") {
@@ -383,7 +384,7 @@ impl GameData {
                 if wall || rock || *value {
                     *value = false;
                     break;
-                }                
+                }
             } else {
                 break;
             }
@@ -392,7 +393,6 @@ impl GameData {
             *value = false;
         }
     }
-
 
     /// Mueve al jugador hacia arriba en el laberinto hasta alcanzar una distancia máxima especificada o hasta encontrar un obstáculo.
     ///
@@ -423,7 +423,9 @@ impl GameData {
             let iterations_pending = reach - dx;
             if new_x < game_data.maze.len() && y < game_data.maze[new_x].len() {
                 Self::check_paths(new_x, game_data, y, typee, bomb, iterations_pending);
-                let Some(value) = game_data.block_map.get_mut("Up")else { todo!() };
+                let Some(value) = game_data.block_map.get_mut("Up") else {
+                    todo!()
+                };
                 let mut wall = false;
                 let mut rock = false;
                 if let Some(w) = game_data.interceps_map.get_mut("Wall") {
@@ -434,7 +436,7 @@ impl GameData {
                 }
                 if wall || rock || *value {
                     break;
-                }                
+                }
             } else {
                 break;
             }
@@ -476,7 +478,9 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-                let Some(value) = game_data.block_map.get_mut("Right")else { todo!() };
+                let Some(value) = game_data.block_map.get_mut("Right") else {
+                    todo!()
+                };
                 let mut wall = false;
                 let mut rock = false;
                 if let Some(w) = game_data.interceps_map.get_mut("Wall") {
@@ -488,12 +492,11 @@ impl GameData {
                 if wall || rock || *value {
                     break;
                 }
-                
             } else {
                 break;
             }
         }
-       if let Some(value) = game_data.block_map.get_mut("Right") {
+        if let Some(value) = game_data.block_map.get_mut("Right") {
             *value = false;
         }
         for (_, value) in game_data.interceps_map.iter_mut() {
@@ -530,7 +533,9 @@ impl GameData {
             let iterations_pending = reach - dy;
             if x < game_data.maze.len() && new_y < game_data.maze[x].len() {
                 Self::check_paths(x, game_data, new_y, typee, bomb, iterations_pending);
-                let Some(value) = game_data.block_map.get_mut("Left")else { todo!() };
+                let Some(value) = game_data.block_map.get_mut("Left") else {
+                    todo!()
+                };
                 let mut wall = false;
                 let mut rock = false;
                 if let Some(w) = game_data.interceps_map.get_mut("Wall") {
@@ -542,12 +547,11 @@ impl GameData {
                 if wall || rock || *value {
                     break;
                 }
-               
             } else {
                 break;
             }
         }
-       if let Some(value) = game_data.block_map.get_mut("Left") {
+        if let Some(value) = game_data.block_map.get_mut("Left") {
             *value = false;
         }
         for (_, value) in game_data.interceps_map.iter_mut() {
@@ -574,14 +578,37 @@ impl GameData {
     }
 }
 
-
-pub fn update_block_map(game_data: &mut GameData, direction: &str) {
-    if game_data.actual_direction == TypeDirection::Down
-        || game_data.actual_direction == TypeDirection::Up
-        || game_data.actual_direction == TypeDirection::Left
-        || game_data.actual_direction == TypeDirection::Right
-    {
-        if let Some(value) = game_data.block_map.get_mut(direction) {
+/// Actualiza el mapa de bloques en función de la dirección actual del juego.
+///
+/// Esta función toma una referencia mutable a `game_data` y una cadena `direction` que
+/// representa la dirección actual del juego. Si la dirección actual es Down, Up, Left o Right,
+/// esta función actualiza el valor correspondiente en el mapa de bloques en `game_data` a true.
+///
+/// # Argumentos
+///
+/// * `game_data` - Una referencia mutable a la estructura `GameData` que contiene información
+///   sobre el estado del juego, incluido el mapa de bloques.
+/// * `direction` - Una cadena que representa la dirección actual del juego. Debe ser una de las
+///   siguientes: "Down", "Up", "Left" o "Right".
+///
+pub fn update_block_map(game_data: &mut GameData) {
+    if game_data.actual_direction == TypeDirection::Down {
+        if let Some(value) = game_data.block_map.get_mut("Down") {
+            *value = true;
+        }
+    }
+    if game_data.actual_direction == TypeDirection::Up {
+        if let Some(value) = game_data.block_map.get_mut("Up") {
+            *value = true;
+        }
+    }
+    if game_data.actual_direction == TypeDirection::Left {
+        if let Some(value) = game_data.block_map.get_mut("Left") {
+            *value = true;
+        }
+    }
+    if game_data.actual_direction == TypeDirection::Right {
+        if let Some(value) = game_data.block_map.get_mut("Right") {
             *value = true;
         }
     }
@@ -737,16 +764,15 @@ fn create_game_data_internal(
         detours,
         maze,
         actual_direction: TypeDirection::None,
-        block_map, 
+        block_map,
         interceps_map,
     }
 }
 
-/// Crea objetos a partir de la cadena de contenido del archivo.
+/// Crea objetos a partir de la matriz con el contenido del archivo.
 ///
 /// # Argumentos
 ///
-/// - `file_contents`: Referencia mutable a la cadena de contenido del archivo.
 /// - `coordinate_x`: Coordenada X del objeto.
 /// - `coordinate_y`: Coordenada Y del objeto.
 /// - `maze`: Laberinto representado como una matriz de cadenas.
@@ -764,7 +790,6 @@ pub fn create_objects(
     let mut enemies: Vec<Enemy> = Vec::new();
     let mut detours: Vec<Detour> = Vec::new();
 
-    // Recorre la matriz maze en lugar de los caracteres del archivo
     for (row_index, row) in maze.iter().enumerate() {
         for (col_index, character) in row.iter().enumerate() {
             if character == SALTO_LINEA || character == VACIO_ {
@@ -784,14 +809,12 @@ pub fn create_objects(
             }
         }
     }
-
     let game_data = create_game_data_internal(
         bombs.clone(),
         enemies.clone(),
         detours.clone(),
         maze.clone(),
     );
-
     if let Err(error) = game_data.validate_maze(coordinate_x, coordinate_y) {
         eprintln!("Error: {}", error);
         return Err(Box::new(error_objeto_invalido()));
@@ -906,12 +929,12 @@ mod tests {
         assert_eq!(game_data.enemies, enemies);
         assert_eq!(game_data.detours, detours);
         assert_eq!(game_data.maze, maze);
-        
+
         let mut wall = false;
         let mut rock = false;
         if let Some(w) = game_data.interceps_map.get_mut("Wall") {
             wall = *w;
-        }        
+        }
         if let Some(r) = game_data.interceps_map.get_mut("Rock") {
             rock = *r;
         }
@@ -937,8 +960,14 @@ mod tests {
             enemies: vec![],
             detours: vec![],
             maze: vec![],
-            block_map: [("Down".to_string(), false), ("Up".to_string(), false)].iter().cloned().collect(),
-            interceps_map: [("Rock".to_string(), false), ("Wall".to_string(), false)].iter().cloned().collect(),
+            block_map: [("Down".to_string(), false), ("Up".to_string(), false)]
+                .iter()
+                .cloned()
+                .collect(),
+            interceps_map: [("Rock".to_string(), false), ("Wall".to_string(), false)]
+                .iter()
+                .cloned()
+                .collect(),
             actual_direction: TypeDirection::None,
         };
 
@@ -970,8 +999,14 @@ mod tests {
             enemies: vec![],
             detours: vec![],
             maze: vec![],
-            block_map: [("Down".to_string(), false), ("Up".to_string(), false)].iter().cloned().collect(),
-            interceps_map: [("Rock".to_string(), false), ("Wall".to_string(), false)].iter().cloned().collect(),
+            block_map: [("Down".to_string(), false), ("Up".to_string(), false)]
+                .iter()
+                .cloned()
+                .collect(),
+            interceps_map: [("Rock".to_string(), false), ("Wall".to_string(), false)]
+                .iter()
+                .cloned()
+                .collect(),
             actual_direction: TypeDirection::None,
         };
 
