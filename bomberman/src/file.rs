@@ -61,7 +61,6 @@ pub fn save_maze_in_file(
         .and_then(|os_str| os_str.to_str())
         .unwrap_or("maze.txt");
 
-    // Crear la ruta completa de destino
     let mut destination_path = PathBuf::new();
     destination_path.push(folder);
     destination_path.push(input_file_name);
